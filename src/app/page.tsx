@@ -1,4 +1,4 @@
-// La importación de global.css se ha movido a _app.tsx
+"use client";
 import { useEffect, useState } from 'react';
 
 export default function Home() {
