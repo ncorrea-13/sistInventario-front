@@ -4,4 +4,4 @@ const nextConfig = {
   allowedDevOrigins: ["app.localhost:3000", "*.localhost:3000", "http://127.0.0.1:3000"],
 };
 
-export default nextConfig;
+module.exports = nextConfig;
