@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 
-export default function CrearEditarArticulo({ onClose }: { onClose: () => void }) {
+export default function CrearEditarArticulo({ onClose, onGuardar, }: { onClose: () => void ; onGuardar: () => void }) {
    const [nombreArticulo, setNombreArticulo] = useState("");
   const [descripcionArticulo, setDescripcionArticulo] = useState("");
   const [stockActual, setStockActual] = useState(0);
@@ -16,7 +16,7 @@ export default function CrearEditarArticulo({ onClose }: { onClose: () => void }
 
   
 
-  const onGuardar = async () => {
+  const handleGuardar = async () => {
     
     const articulo = {
       nombreArticulo,
@@ -53,7 +53,7 @@ export default function CrearEditarArticulo({ onClose }: { onClose: () => void }
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          onGuardar();
+          handleGuardar();
         }}
         className="space-y-4"
       >
