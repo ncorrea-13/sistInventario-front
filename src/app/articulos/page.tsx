@@ -10,7 +10,7 @@ export default function ArticulosPage() {
   useEffect(() => {
     const fetchArticulos = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/articulo`)
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo`)
         if (!res.ok) {
           console.error('Estado de respuesta:', res.status, res.statusText)
           throw new Error('Error al obtener los artículos')
@@ -18,7 +18,9 @@ export default function ArticulosPage() {
         const data = await res.json()
 
         // Mapea los datos del backend a los nombres esperados en el frontend
-        const articulosMapeados = data.map((articulo) => ({
+         const articulosMapeados = data.map((articulo: {
+          codArticulo: number, nombreArticulo: String, descripcionArticulo: String, stockActual: number, costoAlmacenamiento: number, costoCompra: number, costoPedido: number, costoMantenimiento: number, demandaAnual: number, desviacionDemandaL: number, desviacionDemandaT: number, nivelServicioDeseado: number;
+        })  => ({
           descripcion: articulo.descripcionArticulo,
           stock: articulo.stockActual,
           costoAlmacenamiento: articulo.costoAlmacenamiento,
@@ -58,7 +60,8 @@ export default function ArticulosPage() {
           </tr>
         </thead>
         <tbody>
-          {articulos.map((articulo, index) => (
+         {articulos.map((articulo: { descripcion: string, stock: number, costoAlmacenamiento: number,
+          costoPedido: number, demanda: number; }, index) => (
             <tr key={index}>
               <td className="border p-2">{articulo.descripcion}</td>
               <td className="border p-2">{articulo.stock}</td>
@@ -72,9 +75,17 @@ export default function ArticulosPage() {
 
       {mostrarModal && (
         <Modal onClose={() => setMostrarModal(false)}>
-          <CrearEditarArticulo onGuardar={() => setMostrarModal(false)} />
+         <CrearEditarArticulo
+            onGuardar={() => {
+             setMostrarModal(false);
+        
+            }}
+            onClose={() => setMostrarModal(false)}
+          />
+         
         </Modal>
       )}
     </div>
   )
 }    
+
