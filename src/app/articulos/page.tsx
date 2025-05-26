@@ -10,9 +10,23 @@ export default function ArticulosPage() {
   useEffect(() => {
     const fetchArticulos = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/articulos') // ajustá la URL si tu back está en otro puerto o ruta
+        const res = await fetch('http://localhost:3000/api/articulo')
+        if (!res.ok) {
+          console.error('Estado de respuesta:', res.status, res.statusText)
+          throw new Error('Error al obtener los artículos')
+        }
         const data = await res.json()
-        setArticulos(data)
+
+        // Mapea los datos del backend a los nombres esperados en el frontend
+        const articulosMapeados = data.map((articulo) => ({
+          descripcion: articulo.descripcionArticulo,
+          stock: articulo.stockActual,
+          costoAlmacenamiento: articulo.costoAlmacenamiento,
+          costoPedido: articulo.costoPedido,
+          demanda: articulo.demandaAnual,
+        }))
+
+        setArticulos(articulosMapeados)
       } catch (error) {
         console.error('Error al cargar artículos:', error)
       }
@@ -44,8 +58,8 @@ export default function ArticulosPage() {
           </tr>
         </thead>
         <tbody>
-          {articulos.map((articulo) => (
-            <tr key={articulo._id || articulo.codigo}>
+          {articulos.map((articulo, index) => (
+            <tr key={index}>
               <td className="border p-2">{articulo.descripcion}</td>
               <td className="border p-2">{articulo.stock}</td>
               <td className="border p-2">{articulo.costoAlmacenamiento}</td>
@@ -63,4 +77,4 @@ export default function ArticulosPage() {
       )}
     </div>
   )
-}
+}    
