@@ -1,8 +1,8 @@
 
 import React, { useState } from "react";
 
-export default function CrearEditarArticulo({ onClose, onGuardar, }: { onClose: () => void ; onGuardar: () => void }) {
-   const [nombreArticulo, setNombreArticulo] = useState("");
+export default function CrearEditarArticulo({ onClose, onGuardar, }: { onClose: () => void; onGuardar: () => void }) {
+  const [nombreArticulo, setNombreArticulo] = useState("");
   const [descripcionArticulo, setDescripcionArticulo] = useState("");
   const [stockActual, setStockActual] = useState(0);
   const [costoAlmacenamiento, setCostoAlmacenamiento] = useState(0);
@@ -14,13 +14,11 @@ export default function CrearEditarArticulo({ onClose, onGuardar, }: { onClose: 
   const [desviacionDemandaT, setDesviacionDemandaT] = useState(0);
   const [nivelServicioDeseado, setNivelServicioDeseado] = useState(0);
 
-  
-
   const handleGuardar = async () => {
-    
+
     const articulo = {
       nombreArticulo,
-      descripcionArticulo, 
+      descripcionArticulo,
       stockActual,
       costoAlmacenamiento, // Ajusta o agrega campos según corresponda
       costoCompra,
@@ -67,7 +65,7 @@ export default function CrearEditarArticulo({ onClose, onGuardar, }: { onClose: 
           className="w-full p-2 border border-gray-300 rounded"
           placeholder="Descripción"
           value={descripcionArticulo}
-          onChange={(e) => setDescripcionArticulo(e.target.value)}/>
+          onChange={(e) => setDescripcionArticulo(e.target.value)} />
         <input
           className="w-full p-2 border border-gray-300 rounded"
           placeholder="Cantidad"
@@ -93,35 +91,35 @@ export default function CrearEditarArticulo({ onClose, onGuardar, }: { onClose: 
           placeholder="CostoPedido"
           type="number"
           value={costoPedido}
-          onChange={(e) => setCostoPedido(Number(e.target.value))}/>
+          onChange={(e) => setCostoPedido(Number(e.target.value))} />
         <input
           className="w-full p-2 border border-gray-300 rounded"
           placeholder="CostoMantenimiento"
           type="number"
           value={costoMantenimiento}
           onChange={(e) => setCostoMantenimiento(Number(e.target.value))} />
-          <input 
-           className="w-full p-2 border border-gray-300 rounded"
+        <input
+          className="w-full p-2 border border-gray-300 rounded"
           placeholder="DemandaAnual"
           type="number"
           value={demandaAnual}
           onChange={(e) => setDemandaAnual(Number(e.target.value))}
-          />
-         <input
+        />
+        <input
           className="w-full p-2 border border-gray-300 rounded"
           placeholder="desviacionDemandaL"
           type="number"
           value={desviacionDemandaL}
           onChange={(e) => setDesviacionDemandaL(Number(e.target.value))}
-        /> 
-         <input
+        />
+        <input
           className="w-full p-2 border border-gray-300 rounded"
           placeholder="desviacionDemandaT"
           type="number"
           value={desviacionDemandaT}
           onChange={(e) => setDesviacionDemandaT(Number(e.target.value))}
         />
-         <input
+        <input
           className="w-full p-2 border border-gray-300 rounded"
           placeholder="nivelServicioDeseado"
           type="number"
