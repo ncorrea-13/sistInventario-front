@@ -10,7 +10,7 @@ export default function ArticulosPage() {
   useEffect(() => {
     const fetchArticulos = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/articulo')
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/articulo`)
         if (!res.ok) {
           console.error('Estado de respuesta:', res.status, res.statusText)
           throw new Error('Error al obtener los artículos')
