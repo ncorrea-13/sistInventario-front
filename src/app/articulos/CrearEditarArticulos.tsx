@@ -1,38 +1,4 @@
-/*export default function CrearEditarArticulo({ onGuardar }: { onGuardar: () => void }) {
-  return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Editar Artículo</h2>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          onGuardar()
-        }}
-        className="space-y-4"
-      >
-        <input className="w-full p-2 border border-gray-300 rounded" placeholder="Producto" />
-        <input className="w-full p-2 border border-gray-300 rounded" placeholder="Cantidad" type="number" />
-        <input className="w-full p-2 border border-gray-300 rounded" placeholder="Cantidad Mínima" type="number" />
-        <input className="w-full p-2 border border-gray-300 rounded" placeholder="Precio Entrada" type="number" />
-        <input className="w-full p-2 border border-gray-300 rounded" placeholder="Precio Venta" type="number" />
-        <div className="flex justify-between mt-6">
-          <button
-            type="submit"
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-          >
-            Guardar
-          </button>
-          <button
-            type="button"
-            onClick={onGuardar}
-            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-          >
-            Cancelar
-          </button>
-        </div>
-      </form>
-    </div>
-  )
-}*/
+
 import React, { useState } from "react";
 
 export default function CrearEditarArticulo({ onClose }: { onClose: () => void }) {
@@ -48,22 +14,22 @@ export default function CrearEditarArticulo({ onClose }: { onClose: () => void }
   const [desviacionDemandaT, setDesviacionDemandaT] = useState(0);
   const [nivelServicioDeseado, setNivelServicioDeseado] = useState(0);
 
-  // Puedes agregar más campos según tu modelo
+  
 
   const onGuardar = async () => {
-    // Ajusta los nombres de los campos según tu modelo y lo que espera el backend
+    
     const articulo = {
       nombreArticulo,
-      descripcionArticulo: "", // Puedes agregar un campo de descripción si lo necesitas
+      descripcionArticulo, 
       stockActual,
-      costoAlmacenamiento: 0, // Ajusta o agrega campos según corresponda
+      costoAlmacenamiento, // Ajusta o agrega campos según corresponda
       costoCompra,
-      costoPedido: 0,
-      costoMantenimiento: 0,
-      demandaAnual: 0,
-      desviacionDemandaL: 0,
-      desviacionDemandaT: 0,
-      nivelServicioDeseado: 0,
+      costoPedido,
+      costoMantenimiento,
+      demandaAnual,
+      desviacionDemandaL,
+      desviacionDemandaT,
+      nivelServicioDeseado,
       // Agrega los campos que sean requeridos por tu modelo
     };
 
@@ -134,6 +100,13 @@ export default function CrearEditarArticulo({ onClose }: { onClose: () => void }
           type="number"
           value={costoMantenimiento}
           onChange={(e) => setCostoMantenimiento(Number(e.target.value))} />
+          <input 
+           className="w-full p-2 border border-gray-300 rounded"
+          placeholder="DemandaAnual"
+          type="number"
+          value={demandaAnual}
+          onChange={(e) => setDemandaAnual(Number(e.target.value))}
+          />
          <input
           className="w-full p-2 border border-gray-300 rounded"
           placeholder="desviacionDemandaL"
