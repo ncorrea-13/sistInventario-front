@@ -1,35 +1,35 @@
 'use client';
+import React, { useState, useEffect } from "react";
+import Modal from "../componentes/Modal";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
 
-const VentasPage = () => {
-    const [mostrarModal, setMostrarModal] = useState(false)
-    const [proveedores, setProveedores] = useState<{ nombre: string }[]>([])
-    const [ventas, setVentas] = useState<{ nro: number }[]>([])
+const OrdenesCompraPage = () => {
+  const [mostrarModal, setMostrarModal] = useState(false);
+  const [ordenesCompra, setOrdenesCompra] = useState<{ num: string }[]>([]);
 
   useEffect(() => {
-    const fetchVentas = async () => {
+    const fetchOrdenesCompra = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/venta`)
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orden-compra`)
         if (!res.ok) {
           console.error('Estado de respuesta:', res.status, res.statusText)
-          throw new Error('Error al obtener las ventas')
+          throw new Error('Error al obtener las ordenes de compra')
         }
         const data = await res.json()
 
-        const ventasMapeadas = data.map((venta: { nroVenta: number }) => ({
-          nro: venta.nroVenta,
+        // Mapea los datos del backend a los nombres esperados en el frontend
+        const ordenesMapeadas = data.map((ordenCompra: { numOrdenCompra: string }) => ({
+          num: ordenCompra.numOrdenCompra,
         }))
 
-        setVentas(ventasMapeadas)
+        setOrdenesCompra(ordenesMapeadas)
       } catch (error) {
-        console.error('Error al cargar proveedores:', error)
+        console.error('Error al cargar las ordenes de compra:', error)
       }
     }
 
-    fetchVentas()
+    fetchOrdenesCompra()
   }, [])
-
 
   return (
     <div className="flex h-screen font-sans bg-[#fdfbee]">
@@ -51,7 +51,7 @@ const VentasPage = () => {
 
         {/* Subtítulo y botón */}
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Ventas</h2>
+          <h2 className="text-xl font-bold">Ordenes de compra</h2>
           <button className="flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded shadow">
             <span className="text-lg">+</span> Crear
           </button>
@@ -62,7 +62,7 @@ const VentasPage = () => {
           <thead className="bg-gray-300">
             <tr>
               <th className="py-3 px-4 w-1/3">Número</th>
-              <th className="py-3 px-4 w-1/3">Fecha</th>
+              <th className="py-3 px-4 w-1/3">Lote</th>
               <th className="py-3 px-4 w-1/3">Monto</th>
             </tr>
           </thead>
@@ -75,4 +75,4 @@ const VentasPage = () => {
   );
 };
 
-export default VentasPage;
+export default OrdenesCompraPage;

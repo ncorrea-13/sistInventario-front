@@ -2,8 +2,10 @@
 import { useEffect, useState } from 'react'
 import Modal from '../componentes/Modal'
 import CrearEditarArticulo from './CrearEditarArticulos'
+import React from "react";
+import Link from 'next/link';
 
-export default function ArticulosPage() {
+const ArticulosPage = () => {
   const [mostrarModal, setMostrarModal] = useState(false)
   const [articulos, setArticulos] = useState([])
 
@@ -38,44 +40,48 @@ export default function ArticulosPage() {
   }, [])
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Productos</h1>
-        <button
-          onClick={() => setMostrarModal(true)}
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-        >
-          + Crear
-        </button>
-      </div>
+    <div className="flex h-screen font-sans bg-[#fdfbee]">
+      {/* Sidebar */}
+      <aside className="w-60 bg-gray-300 p-4">
+        <h2 className="text-lg font-bold mb-6">Navegación</h2>
+        <nav className="flex flex-col space-y-4">
+          <Link href="/articulos" className="hover:underline">Artículos</Link>
+          <Link href="/proveedores" className="hover:underline">Proveedores</Link>
+          <Link href="/orden-compra" className="hover:underline">Orden de Compra</Link>
+          <Link href="/ventas" className="hover:underline">Ventas</Link>
+        </nav>
 
-      <table className="w-full border-collapse border border-gray-300">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="border p-2">Descripción</th>
-            <th className="border p-2">Stock</th>
-            <th className="border p-2">Costo Almacenamiento</th>
-            <th className="border p-2">Costo Pedido</th>
-            <th className="border p-2">Demanda</th>
-          </tr>
-        </thead>
-        <tbody>
-          {articulos.map((articulo: {
-            descripcion: string, stock: number, costoAlmacenamiento: number,
-            costoPedido: number, demanda: number;
-          }, index) => (
-            <tr key={index}>
-              <td className="border p-2">{articulo.descripcion}</td>
-              <td className="border p-2">{articulo.stock}</td>
-              <td className="border p-2">{articulo.costoAlmacenamiento}</td>
-              <td className="border p-2">{articulo.costoPedido}</td>
-              <td className="border p-2">{articulo.demanda}</td>
+      </aside>
+
+      {/* Main content */}
+      <main className="flex-1 p-10">
+        {/* Header */}
+        <h1 className="text-4xl font-bold text-center mb-8">Stocker</h1>
+
+        {/* Subtítulo y botón */}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Productos</h2>
+          <button className="flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded shadow">
+            <span className="text-lg">+</span> Crear
+          </button>
+        </div>
+
+        {/* Tabla */}
+        <table className="w-full text-sm">
+          <thead className="bg-gray-300 text-center text-black font-bold">
+            <tr>
+              <th className="py-3 px-4 w-1/5">Descripción</th>
+              <th className="py-3 px-4 w-1/5">Stock</th>
+              <th className="py-3 px-4 w-1/5">Costo de almacenamiento</th>
+              <th className="py-3 px-4 w-1/5">Costo de pedido</th>
+              <th className="py-3 px-4 w-1/5">Demanda</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {mostrarModal && (
+          </thead>
+          <tbody>
+            {}
+          </tbody>
+        </table>
+        {mostrarModal && (
         <Modal onClose={() => setMostrarModal(false)}>
           <CrearEditarArticulo
             onGuardar={() => {
@@ -84,8 +90,12 @@ export default function ArticulosPage() {
             onClose={() => setMostrarModal(false)}
           />
         </Modal>
-      )}
+        )}
+
+      </main>
     </div>
-  )
-}
+  );
+};
+
+export default ArticulosPage;
 
