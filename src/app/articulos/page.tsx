@@ -23,11 +23,15 @@ const ArticulosPage = () => {
         const articulosMapeados = data.map((articulo: {
           codArticulo: number, nombreArticulo: String, descripcionArticulo: String, stockActual: number, costoAlmacenamiento: number, costoCompra: number, costoPedido: number, costoMantenimiento: number, demandaAnual: number, desviacionDemandaL: number, desviacionDemandaT: number, nivelServicioDeseado: number;
         }) => ({
+          nombre: articulo.nombreArticulo,
           descripcion: articulo.descripcionArticulo,
           stock: articulo.stockActual,
           costoAlmacenamiento: articulo.costoAlmacenamiento,
           costoPedido: articulo.costoPedido,
           demanda: articulo.demandaAnual,
+          costoCompra: articulo.costoCompra,
+          desviacionDemandaL: articulo.desviacionDemandaL,
+          desviacionDemandaT: articulo.desviacionDemandaT,
         }))
 
         setArticulos(articulosMapeados)
@@ -70,11 +74,17 @@ const ArticulosPage = () => {
         <table className="w-full text-sm">
           <thead className="bg-gray-300 text-center text-black font-bold">
             <tr>
+              <th className="py-3 px-4 w-1/5">Nombre</th>
               <th className="py-3 px-4 w-1/5">Descripción</th>
               <th className="py-3 px-4 w-1/5">Stock</th>
               <th className="py-3 px-4 w-1/5">Costo de almacenamiento</th>
               <th className="py-3 px-4 w-1/5">Costo de pedido</th>
               <th className="py-3 px-4 w-1/5">Demanda</th>
+              <th className="py-3 px-4 w-1/5">Costo de Compra</th>
+              <th className="py-3 px-4 w-1/5">Desviacion DemandaL</th>
+              <th className="py-3 px-4 w-1/5">Desviacion DemandaT</th>
+              
+              
             </tr>
           </thead>
           <tbody>
