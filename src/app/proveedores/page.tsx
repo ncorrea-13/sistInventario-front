@@ -3,7 +3,11 @@ import { useEffect, useState } from 'react'
 import Modal from '../componentes/Modal'
 import CrearProveedor from './CrearProveedor'
 
-export default function ProveedoresPage() {
+// src/app/articulos/page.tsx
+import React from "react";
+import Link from 'next/link';
+
+const ProveedoresPage = () => {
   const [mostrarModal, setMostrarModal] = useState(false)
   const [proveedores, setProveedores] = useState<{ nombre: string }[]>([])
 
@@ -32,33 +36,46 @@ export default function ProveedoresPage() {
   }, [])
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Proveedores</h1>
-        <button
-          onClick={() => setMostrarModal(true)}
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-        >
-          + Crear
-        </button>
-      </div>
+    <div className="flex h-screen font-sans bg-[#fdfbee]">
+      {/* Sidebar */}
+      <aside className="w-60 bg-gray-300 p-4">
+        <h2 className="text-lg font-bold mb-6">Navegación</h2>
+        <nav className="flex flex-col space-y-4">
+          <Link href="/articulos" className="hover:underline">Artículos</Link>
+          <Link href="/proveedores" className="hover:underline">Proveedores</Link>
+          <Link href="/orden-compra" className="hover:underline">Orden de Compra</Link>
+          <Link href="/ventas" className="hover:underline">Ventas</Link>
+        </nav>
+      </aside>
 
-      <table className="w-full border-collapse border border-gray-300">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="border p-2">Nombre</th>
-          </tr>
-        </thead>
-        <tbody>
-          {proveedores.map((proveedor, index) => (
-            <tr key={index}>
-              <td className="border p-2">{proveedor.nombre}</td>
+      {/* Main content */}
+      <main className="flex-1 p-10">
+        {/* Header */}
+        <h1 className="text-4xl font-bold text-center mb-8">Stocker</h1>
+
+        {/* Subtítulo y botón */}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Proveedores</h2>
+          <button className="flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded shadow">
+            <span className="text-lg">+</span> Crear
+          </button>
+        </div>
+
+        {/* Tabla */}
+        <table className="w-full text-sm">
+          <thead className="bg-gray-300">
+            <tr>
+              <th className="py-3 px-4 w-1/3">Codigo</th>
+              <th className="py-3 px-4 w-1/3">Nombre</th>
+              <th className="py-3 px-4 w-1/3">Fecha Baja</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {/* Aquí irán los datos dinámicos */}
+          </tbody>
+        </table>
 
-      {mostrarModal && (
+        {mostrarModal && (
         <Modal onClose={() => setMostrarModal(false)}>
           <CrearProveedor onGuardar={() => {
             setMostrarModal(false);
@@ -67,8 +84,11 @@ export default function ProveedoresPage() {
             onClose={() => setMostrarModal(false)}
           />
         </Modal>
-      )}
-    </div>
-  )
-}
+        )}
 
+      </main>
+    </div>
+  );
+};
+
+export default ProveedoresPage;
