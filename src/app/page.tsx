@@ -26,7 +26,7 @@ const router = useRouter()
     // </>
 
 <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-pink-500 to-purple-700 text-white">
-      <h1 className="text-5xl font-extrabold mb-12">VAMONOS BARTOLO</h1>
+      <h1 className="text-5xl font-extrabold mb-12">FUIMONOS BARTOLO</h1>
       <div className="grid grid-cols-2 gap-6">
         <button
           onClick={() => router.push('/proveedores')}

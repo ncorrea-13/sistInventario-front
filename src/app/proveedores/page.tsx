@@ -38,32 +38,53 @@ const ProveedoresPage = () => {
   return (
     <div className="flex h-screen font-sans bg-[#fdfbee]">
       {/* Sidebar */}
-      <aside className="w-60 bg-gray-300 p-4">
-        <h2 className="text-lg font-bold mb-6">Navegación</h2>
-        <nav className="flex flex-col space-y-4">
-          <Link href="/articulos" className="hover:underline">Artículos</Link>
-          <Link href="/proveedores" className="hover:underline">Proveedores</Link>
-          <Link href="/orden-compra" className="hover:underline">Orden de Compra</Link>
-          <Link href="/ventas" className="hover:underline">Ventas</Link>
-        </nav>
-      </aside>
+<aside className="w-64 bg-black/80 shadow-xl border-r border-gray-200 p-6 min-h-screen rounded-r-3xl">
+  <h2 className="text-xl font-semibold text-white mb-8 tracking-wide">Navegación</h2>
+  <nav className="flex flex-col gap-4 text-gray-700 font-medium">
+    <Link
+      href="/articulos"
+      className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-green-600 transition"
+    >
+      📦 <span className="text-white hover:scale-110">Artículos</span>
+    </Link>
+    <Link
+      href="/proveedores"
+      className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-green-600 transition"
+    >
+      🧾 <span className="text-white hover:scale-110">Proveedores</span>
+    </Link>
+    <Link
+      href="/orden-compra"
+      className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-green-600 transition"
+    >
+      🛒 <span className="text-white hover:scale-110">Orden de Compra</span>
+    </Link>
+    <Link
+      href="/ventas"
+      className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-green-600 transition"
+    >
+      💰 <span className="text-white hover:scale-110">Ventas</span>
+    </Link>
+  </nav>
+</aside>
+
 
       {/* Main content */}
-      <main className="flex-1 p-10">
+      <main className="flex-1 p-10 bg-white rounded-l-3xl shadow-2xl overflow-y-auto">
         {/* Header */}
         <h1 className="text-4xl font-bold text-center mb-8">Stocker</h1>
 
         {/* Subtítulo y botón */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Proveedores</h2>
-          <button className="flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded shadow">
-            <span className="text-lg">+</span> Crear
+          <button className="flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-full shadow-md transition hover:scale-110">
+            <span className="text-lg hover:scale-110">+</span> Crear
           </button>
         </div>
 
         {/* Tabla */}
-        <table className="w-full text-sm">
-          <thead className="bg-gray-300">
+        <table className="w-full text-sm rounded-xl overflow-hidden shadow-md bg-white">
+          <thead className="bg-gray-300 rounded-3x1 overflow-hidden">
             <tr>
               <th className="py-3 px-4 w-1/3">Codigo</th>
               <th className="py-3 px-4 w-1/3">Nombre</th>
