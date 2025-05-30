@@ -1,10 +1,9 @@
-// ✅ archivo: /app/articulos/page.tsx
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import Modal from '../componentes/Modal';
 import CrearEditarArticulo from './CrearEditarArticulos';
+import DetalleArticulo from './DetalleArticulo';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 
 interface ArticuloMapped {
   codArticulo: number;
@@ -21,8 +20,8 @@ interface ArticuloMapped {
 
 const ArticulosPage = () => {
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [detalleId, setDetalleId] = useState<number | null>(null);
   const [articulos, setArticulos] = useState<ArticuloMapped[]>([]);
-  const router = useRouter();
 
   const fetchArticulos = useCallback(async () => {
     try {
@@ -52,6 +51,7 @@ const ArticulosPage = () => {
 
   return (
     <div className="flex h-screen font-sans bg-[#fdfbee]">
+      {/* Sidebar */}
       <aside className="w-60 bg-gray-300 p-4">
         <h2 className="text-lg font-bold mb-6">Navegación</h2>
         <nav className="flex flex-col space-y-4">
@@ -62,6 +62,7 @@ const ArticulosPage = () => {
         </nav>
       </aside>
 
+      {/* Main content */}
       <main className="flex-1 p-10">
         <h1 className="text-4xl font-bold text-center mb-8">Stocker</h1>
 
@@ -94,7 +95,7 @@ const ArticulosPage = () => {
               <tr
                 key={articulo.codArticulo}
                 className="cursor-pointer hover:bg-gray-100"
-                onClick={() => router.push(`/articulos/${articulo.codArticulo}`)}
+                onDoubleClick={() => setDetalleId(articulo.codArticulo)} // <== Abrir detalle al doble click
               >
                 <td className="border p-2">{articulo.nombre}</td>
                 <td className="border p-2">{articulo.descripcion}</td>
@@ -110,6 +111,7 @@ const ArticulosPage = () => {
           </tbody>
         </table>
 
+        {/* Modal para crear */}
         {mostrarModal && (
           <Modal onClose={() => setMostrarModal(false)}>
             <CrearEditarArticulo
@@ -118,6 +120,17 @@ const ArticulosPage = () => {
                 setMostrarModal(false);
               }}
               onClose={() => setMostrarModal(false)}
+            />
+          </Modal>
+        )}
+
+        {/* Modal para ver detalle */}
+        {detalleId !== null && (
+          <Modal onClose={() => setDetalleId(null)}>
+            <DetalleArticulo
+              codArticulo={detalleId}
+              onClose={() => setDetalleId(null)}
+              onRefrescar={fetchArticulos}
             />
           </Modal>
         )}
