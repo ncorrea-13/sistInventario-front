@@ -1,17 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 
-interface ProveedorArticulo {
-  id: number;
-  precioUnitaria: number;
-  demoraEntrega: number;
-  cargoPedido: number;
-  predeterminado: boolean;
-  proveedor: {
-    nombreProv: string;
-  };
-}
-
 interface ArticuloDetalle {
   codArticulo: number;
   nombreArticulo: string;
@@ -25,7 +14,10 @@ interface ArticuloDetalle {
   desviacionDemandaL: number;
   desviacionDemandaT: number;
   nivelServicioDeseado: number;
-  proveedorArticulos: ProveedorArticulo[];
+  proveedores: {
+    codProveedor: number;
+    nombreProv: string;
+  }[];
 }
 
 export default function DetalleArticulo({
@@ -88,7 +80,7 @@ export default function DetalleArticulo({
   const handleEliminar = async () => {
     if (!confirm('¿Estás seguro de que querés eliminar este artículo?')) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo/${codArticulo}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo/${codArticulo}/baja`, {
         method: 'PATCH',
       });
       if (res.ok) {
@@ -154,11 +146,10 @@ export default function DetalleArticulo({
 
       <h3 className="text-lg font-bold mt-4 mb-2">Proveedores asociados</h3>
       <ul className="list-inside text-sm">
-        {articulo.proveedorArticulos?.length > 0 ? (
-          articulo.proveedorArticulos.map((prov, i) => (
+        {articulo.proveedores?.length > 0 ? (
+          articulo.proveedores.map((prov, i) => (
             <li key={i}>
-              {prov.proveedor.nombreProv} - ${prov.precioUnitaria} - demora: {prov.demoraEntrega} días
-              {prov.predeterminado && <span className="text-green-600 font-bold ml-2">(Predeterminado)</span>}
+              {prov.nombreProv}
             </li>
           ))
         ) : (
