@@ -5,27 +5,38 @@ import { PackageOpen } from "lucide-react";
 const VentasPage = () => {
   const [mostrarModal, setMostrarModal] = useState(false)
   const [proveedores, setProveedores] = useState<{ nombre: string }[]>([])
-  const [ventas, setVentas] = useState<{ nro: number }[]>([])
+  const [ventas, setVentas] = useState<{ nro: number; fecha: string; monto: number }[]>([]);
 
   useEffect(() => {
+
     const fetchVentas = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/venta`)
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/venta`);
         if (!res.ok) {
-          console.error('Estado de respuesta:', res.status, res.statusText)
-          throw new Error('Error al obtener las ventas')
+          console.error('Estado de respuesta:', res.status, res.statusText);
+          throw new Error('Error al obtener las ventas');
         }
-        const data = await res.json()
+        const data = await res.json();
+        console.log('Respuesta de la API:', data);
 
-        const ventasMapeadas = data.map((venta: { nroVenta: number }) => ({
+        // Verifica si la propiedad "ventas" existe y es un array
+        if (!data.ventas || !Array.isArray(data.ventas)) {
+          console.error('La propiedad "ventas" no es un array:', data);
+          return;
+        }
+
+        // Mapea los datos de la propiedad "ventas"
+        const ventasMapeadas = data.ventas.map((venta: { nroVenta: number; fechaVenta: string; montoTotalVenta: number }) => ({
           nro: venta.nroVenta,
-        }))
+          fecha: new Date(venta.fechaVenta).toLocaleDateString(), // Formatea la fecha
+          monto: venta.montoTotalVenta,
+        }));
 
-        setVentas(ventasMapeadas)
+        setVentas(ventasMapeadas);
       } catch (error) {
-        console.error('Error al cargar las ventas:', error)
+        console.error('Error al cargar las ventas:', error);
       }
-    }
+    };
 
     fetchVentas()
   }, [])
@@ -60,7 +71,13 @@ const VentasPage = () => {
             </tr>
           </thead>
           <tbody>
-            {/* Aquí irán los datos dinámicos */}
+            {ventas.map((venta) => (
+              <tr key={venta.nro} className="text-center">
+                <td className="py-3 px-4">{venta.nro}</td>
+                <td className="py-3 px-4">{venta.fecha}</td>
+                <td className="py-3 px-4">{venta.monto}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </main>

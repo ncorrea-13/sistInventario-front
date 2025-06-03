@@ -7,6 +7,7 @@ interface OrdenCompraFormProps {
 }
 
 export default function CrearEditarOrdenCompra({ orden, onClose }: OrdenCompraFormProps) {
+  const [numOrdenCompra, setNumOrdenCompra] = useState('');
   const [tamanoLote, setTamanoLote] = useState('');
   //const [montoOrden, setMontoOrden] = useState('');
   const [proveedorId, setProveedorId] = useState('');
@@ -15,6 +16,7 @@ export default function CrearEditarOrdenCompra({ orden, onClose }: OrdenCompraFo
 
   useEffect(() => {
     if (orden) {
+      setNumOrdenCompra(String(orden.numOrdenCompra));
       setTamanoLote(String(orden.tamanoLote));
       //setMontoOrden(String(orden.montoOrden));
       setProveedorId(String(orden.proveedorId));
@@ -31,10 +33,9 @@ export default function CrearEditarOrdenCompra({ orden, onClose }: OrdenCompraFo
 
       if (orden) {
         const payload = {
-          ordenCompraId: orden.ordenCompraId,
           datosActualizados: {
+            numOrdenCompra: Number(numOrdenCompra),
             tamanoLote: Number(tamanoLote),
-            //montoOrden: Number(montoOrden),
             proveedorId: Number(proveedorId),
             ordenEstadoId: Number(ordenEstadoId),
           },
@@ -90,6 +91,17 @@ export default function CrearEditarOrdenCompra({ orden, onClose }: OrdenCompraFo
             />
           </div>
         )}
+        {orden && (
+          <div className="col-span-2">
+            <label className="block text-sm font-medium mb-1">Número de Orden</label>
+            <input
+              type="text"
+              value={numOrdenCompra}
+              disabled
+              className="border rounded px-3 py-2 w-full bg-gray-100 cursor-not-allowed"
+            />
+          </div>
+        )}
         <div>
           <label className="block text-sm font-medium mb-1">Tamaño Lote</label>
           <input
@@ -100,7 +112,7 @@ export default function CrearEditarOrdenCompra({ orden, onClose }: OrdenCompraFo
             required
           />
         </div>
-        
+
         <div>
           <label className="block text-sm font-medium mb-1">Proveedor ID</label>
           <input
