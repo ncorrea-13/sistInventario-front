@@ -59,6 +59,10 @@ export default function CrearEditarOrdenCompra({ orden, onClose }: OrdenCompraFo
           }),
         });
 
+        const responseText = await res.text();
+        console.log('Estado de la respuesta:', res.status);
+        console.log('Cuerpo de la respuesta:', responseText);
+
         if (!res.ok) throw new Error();
       }
 
