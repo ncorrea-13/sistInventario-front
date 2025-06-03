@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import Modal from '../componentes/Modal';
 import CrearEditarProveedor from './CrearEditarProveedor';
-import Sidebar from '../componentes/Sidebar';
 import { PackageOpen } from 'lucide-react';
 
 interface Proveedor {
@@ -46,7 +45,6 @@ export default function ProveedoresPage() {
 
   return (
     <div className="flex h-screen font-sans bg-[#fdfbee]">
-      <Sidebar />
 
       {/* Main */}
       <main className="flex-1 p-10 bg-white rounded-l-3xl shadow-2xl overflow-y-auto">

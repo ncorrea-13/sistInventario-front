@@ -3,7 +3,6 @@ import { useCallback, useEffect, useState } from 'react';
 import Modal from '../componentes/Modal';
 import CrearEditarArticulo from './CrearEditarArticulos';
 import DetalleArticulo from './DetalleArticulo';
-import Sidebar from '../componentes/Sidebar';
 import { PackageOpen } from 'lucide-react';
 
 interface ArticuloMapped {
@@ -52,7 +51,6 @@ const ArticulosPage = () => {
 
   return (
     <div className="flex h-screen font-sans bg-[#fdfbee]">
-      <Sidebar />
 
       {/* Main content */}
       <main className="flex-1 p-10 bg-white rounded-l-3xl shadow-2xl overflow-y-auto">
