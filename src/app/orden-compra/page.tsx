@@ -2,8 +2,7 @@
 import { useEffect, useState } from 'react';
 import Modal from '../componentes/Modal';
 import CrearEditarOrdenCompra from './CrearEditarOrdenCompra';
-import Sidebar from '../componentes/Sidebar';
-import {PackageOpen} from "lucide-react";
+import { PackageOpen } from "lucide-react";
 
 interface OrdenCompra {
   ordenCompraId: number;
@@ -41,7 +40,6 @@ export default function OrdenesCompraPage() {
 
   return (
     <div className="flex h-screen font-sans bg-[#fdfbee]">
-      <Sidebar />
 
       <main className="flex-1 p-10 bg-white rounded-l-3xl shadow-2xl overflow-y-auto">
         <div className="flex items-center justify-center gap-2 mb-8">

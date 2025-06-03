@@ -17,8 +17,8 @@ export default function CrearEditarProveedor({
   const handleGuardar = async () => {
     try {
       const url = proveedorId
-        ? `${process.env.NEXT_PUBLIC_API_URL}/proveedores/${proveedorId}`
-        : `${process.env.NEXT_PUBLIC_API_URL}/proveedores`;
+        ? `${process.env.NEXT_PUBLIC_API_URL}/proveedor/${proveedorId}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/proveedor`;
 
       const method = proveedorId ? 'PUT' : 'POST';
 
