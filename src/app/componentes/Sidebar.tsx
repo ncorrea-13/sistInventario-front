@@ -14,7 +14,7 @@ const Sidebar: React.FC = () => {
                 <Truck size={20} className="text-white" />
                 <span className="text-white hover:scale-110">Proveedores</span>
             </Link>
-            <Link href="/orden-compra" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-green-600 transition">
+            <Link href="/ordenCompra" className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-green-600 transition">
                 <ShoppingCart size={20} className="text-white" />
                 <span className="text-white hover:scale-110">Orden de Compra</span>
             </Link>
