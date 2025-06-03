@@ -1,6 +1,7 @@
 "use client";
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react';
+import { ShoppingCart, BadgeDollarSign, Truck, Package, LayoutDashboard} from "lucide-react";
 
 export default function Home() {
 const router = useRouter()
@@ -25,40 +26,61 @@ const router = useRouter()
     //   </div>
     // </>
 
-<div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-pink-500 to-purple-700 text-white">
-      <h1 className="text-5xl font-extrabold mb-12">FUIMONOS BARTOLO</h1>
+    <div className="min-h-screen flex flex-col items-center justify-center text-white bg-gradient-to-t from-gray-900 to-white">
+    
+      <div className="bg-gray-800 p-8 mt-20 rounded-t-2xl shadow-inner h-full min-h-screen">
+        
+      <h1 className="text-5xl font-extrabold mb-12 mt-10 text-center hover:text-green-500 hover:scale-105">Stocker</h1>
       <div className="grid grid-cols-2 gap-6">
         <button
           onClick={() => router.push('/proveedores')}
-          className="bg-pink-400 hover:bg-pink-500 transition rounded-xl py-6 px-8 text-lg shadow-md"
+          className="bg-transparent border-2 border-green-600 hover:bg-green-600 mt-10 hover:text-white transition text-green-600 rounded-xl py-4 px-8 text-lg shadow-md"
         >
-          🤝 Proveedores
+          <div className="flex items-center justify-center gap-2">
+            <Truck size={20} className="text-white" />
+            <span className="text-white">Proveedores</span>
+          </div>
         </button>
         <button
           onClick={() => router.push('/articulos')}
-          className="bg-purple-400 hover:bg-purple-500 transition rounded-xl py-6 px-8 text-lg shadow-md"
+          className="bg-transparent border-2 border-green-600 hover:bg-green-600 mt-10 hover:text-white transition text-green-600 rounded-xl py-4 px-8 text-lg shadow-md"
         >
-          📦 Artículos
+          <div className="flex items-center justify-center gap-2">
+            <Package size={20} className="text-white" />
+            <span className="text-white">Articulos</span>
+          </div>
         </button>
         <button
           onClick={() => router.push('/ordenes-compra')}
-          className="bg-pink-400 hover:bg-pink-500 transition rounded-xl py-6 px-8 text-lg shadow-md"
+          className="bg-transparent border-2 border-green-600 hover:bg-green-600 hover:text-white transition text-green-600 rounded-xl py-4 px-8 text-lg shadow-md"
         >
-          📜 Órdenes de compra
+          <div className="flex items-center justify-center gap-2">
+            <ShoppingCart size={20} className="text-white" />
+            <span className="text-white">Ordenes de compra</span>
+          </div>
         </button>
         <button
           onClick={() => router.push('/ventas')}
-          className="bg-purple-400 hover:bg-purple-500 transition rounded-xl py-6 px-8 text-lg shadow-md"
+          className="bg-transparent border-2 border-green-600 hover:bg-green-600 hover:text-white transition text-green-600 rounded-xl py-4 px-8 text-lg shadow-md"
         >
-          💰 Ventas
+          <div className="flex items-center justify-center gap-2">
+            <BadgeDollarSign size={20} className="text-white" />
+            <span className="text-white">Ventas</span>
+          </div>
         </button>
         <button
           disabled
           className="col-span-2 opacity-60 cursor-not-allowed bg-white text-gray-400 rounded-xl py-6 px-8 text-lg"
         >
-          📊 Dashboard (en desarrollo)
+          <div className="flex items-center justify-center gap-2">
+            <LayoutDashboard size={20} className="text-white" />
+            <span className="text-white">Dashboard</span>
+          </div>
         </button>
       </div>
+      
+      </div>    
+      
     </div>
 
   );
