@@ -24,6 +24,14 @@ export default function CrearProveedor({ onClose, onGuardar, }: { onClose: () =>
     }
   };
 
+  function setProveedorSeleccionado(proveedor: any) {
+    throw new Error("Function not implemented.");
+  }
+
+  function setMostrarModal(arg0: boolean) {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Crear Proveedor</h2>
@@ -61,6 +69,10 @@ export default function CrearProveedor({ onClose, onGuardar, }: { onClose: () =>
           >
             Cancelar
           </button>
+
+      
+          
+
         </div>
       </form>
     </div>

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import Modal from '../componentes/Modal';
 import CrearEditarProveedor from './CrearEditarProveedor';
 import { PackageOpen } from 'lucide-react';
+import DetalleProveedor from './DetalleProveedor';
 
 interface Proveedor {
   codProveedor: number;
@@ -13,6 +14,7 @@ interface Proveedor {
 export default function ProveedoresPage() {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [proveedores, setProveedores] = useState<Proveedor[]>([]);
+  const [detalleId, setDetalleId] = useState<number | null>(null);
   const [proveedorSeleccionado, setProveedorSeleccionado] = useState<Proveedor | null>(null);
 
   const fetchProveedores = async () => {
@@ -77,20 +79,16 @@ export default function ProveedoresPage() {
           </thead>
           <tbody>
             {proveedores.map((prov) => (
-              <tr key={prov.codProveedor} className="text-center border-b hover:bg-gray-100">
+              <tr 
+                key={prov.codProveedor} 
+                className="text-center border-b hover:bg-gray-100"
+                onDoubleClick={() => setDetalleId(prov.codProveedor)}
+                >
                 <td className="py-2 px-4">{prov.codProveedor}</td>
                 <td className="py-2 px-4">{prov.nombreProv}</td>
                 <td className="py-2 px-4">{prov.fechaBaja || '—'}</td>
                 <td className="py-2 px-4 flex justify-center gap-2">
-                  <button
-                    className="text-blue-600 hover:underline"
-                    onClick={() => {
-                      setProveedorSeleccionado(prov);
-                      setMostrarModal(true);
-                    }}
-                  >
-                    Editar
-                  </button>
+                  
                   <button
                     className="text-red-600 hover:underline"
                     onClick={() => handleEliminar(prov.codProveedor)}
@@ -113,6 +111,18 @@ export default function ProveedoresPage() {
             />
           </Modal>
         )}
+
+        {/* Modal para ver detalle */}
+          {detalleId !== null && (
+            <Modal onClose={() => setDetalleId(null)}>
+            <DetalleProveedor
+              codProveedor={detalleId}
+              onClose={() => setDetalleId(null)}
+              onRefrescar={fetchProveedores}
+            />
+          </Modal>
+        )}
+
       </main>
     </div>
   );
