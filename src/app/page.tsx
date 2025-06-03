@@ -51,7 +51,7 @@ const router = useRouter()
           </div>
         </button>
         <button
-          onClick={() => router.push('/ordenes-compra')}
+          onClick={() => router.push('/ordenCompra')}
           className="bg-transparent border-2 border-green-600 hover:bg-green-600 hover:text-white transition text-green-600 rounded-xl py-4 px-8 text-lg shadow-md"
         >
           <div className="flex items-center justify-center gap-2">
