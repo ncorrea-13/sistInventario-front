@@ -25,6 +25,7 @@ interface ArticuloDetalle {
   desviacionDemandaL: number;
   desviacionDemandaT: number;
   nivelServicioDeseado: number;
+  modeloInventario: string;
   proveedorArticulos: ProveedorArticulo[];
 }
 
@@ -55,7 +56,7 @@ export default function DetalleArticulo({
     fetchDetalle();
   }, [codArticulo]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -65,30 +66,52 @@ export default function DetalleArticulo({
     }));
   };
 
-  const handleGuardarCambios = async () => {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo/${codArticulo}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      if (res.ok) {
-        const actualizado = await res.json();
-        setArticulo(actualizado);
-        setEditando(false);
-        onRefrescar();
-      } else {
-        alert('Error al guardar los cambios');
-      }
-    } catch (err) {
-      console.error('Error al guardar:', err);
+ const handleGuardarCambios = async () => {
+  if (!formData.modeloInventario) {
+    alert("Debe seleccionar un modelo de inventario.");
+    return;
+  }
+
+  try {
+    const cleanData = { ...formData };
+
+    // 💣 Limpiar campos no permitidos
+    delete (cleanData as any).codArticulo;
+    delete (cleanData as any).proveedores;
+    delete (cleanData as any).proveedorArticulos;
+
+    const filteredData = Object.fromEntries(
+      Object.entries(cleanData).filter(([_, v]) => v !== undefined)
+    );
+
+    console.log("🟢 JSON que se envía al backend:", filteredData);
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo/${codArticulo}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(filteredData),
+    });
+
+    if (res.ok) {
+      const actualizado = await res.json();
+      setArticulo(actualizado);
+      setEditando(false);
+      onRefrescar();
+    } else {
+      const errorText = await res.text();
+      console.error("❌ Error en backend:", errorText);
+      alert('Error al guardar los cambios');
     }
-  };
+  } catch (err) {
+    console.error('Error al guardar:', err);
+  }
+};
+
 
   const handleEliminar = async () => {
     if (!confirm('¿Estás seguro de que querés eliminar este artículo?')) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo/${codArticulo}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo/${codArticulo}/baja`, {
         method: 'PATCH',
       });
       if (res.ok) {
@@ -111,6 +134,7 @@ export default function DetalleArticulo({
           {[
             { label: 'Nombre del artículo', name: 'nombreArticulo' },
             { label: 'Descripción', name: 'descripcionArticulo' },
+            { label: 'Modelo de inventario', name: 'modeloInventario', type: 'select' },
             { label: 'Stock actual', name: 'stockActual' },
             { label: 'Costo de almacenamiento', name: 'costoAlmacenamiento' },
             { label: 'Costo de compra', name: 'costoCompra' },
@@ -123,22 +147,35 @@ export default function DetalleArticulo({
           ].map((field) => (
             <div key={field.name}>
               <label className="block text-sm font-medium text-gray-700">{field.label}</label>
-              <input
-                name={field.name}
-                type={field.name.includes('stock') || field.name.includes('costo') || field.name.includes('demanda') || field.name.includes('desviacion') || field.name.includes('nivel')
-                  ? 'number'
-                  : 'text'}
-                value={(formData as any)[field.name] ?? ''}
-                onChange={handleInputChange}
-                className="border rounded px-3 py-1 w-full"
-              />
+              {field.type === 'select' ? (
+                <select
+                  name={field.name}
+                  value={(formData as any)[field.name] ?? ''}
+                  onChange={handleInputChange}
+                  className="border rounded px-3 py-1 w-full"
+                >
+                  <option value="loteFijo">Lote Fijo</option>
+                  <option value="intervaloFijo">Intervalo Fijo</option>
+                </select>
+              ) : (
+                <input
+                  name={field.name}
+                  type={field.name.includes('stock') || field.name.includes('costo') || field.name.includes('demanda') || field.name.includes('desviacion') || field.name.includes('nivel')
+                    ? 'number'
+                    : 'text'}
+                  value={(formData as any)[field.name] ?? ''}
+                  onChange={handleInputChange}
+                  className="border rounded px-3 py-1 w-full"
+                />
+              )}
             </div>
           ))}
         </div>
       ) : (
         <>
-          <h2 className="text-2xl font-bold mb-4">{articulo.nombreArticulo}</h2>
+          <h2 className="text-2xl font-bold mb-2">{articulo.nombreArticulo}</h2>
           <p className="mb-2"><strong>Descripción:</strong> {articulo.descripcionArticulo}</p>
+          <p className="mb-2"><strong>Modelo de Inventario:</strong> {articulo.modeloInventario}</p>
           <p className="mb-2"><strong>Stock:</strong> {articulo.stockActual}</p>
           <ul className="list-disc list-inside text-sm mb-4">
             <li>Almacenamiento: ${articulo.costoAlmacenamiento}</li>
