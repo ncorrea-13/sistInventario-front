@@ -1,3 +1,4 @@
+
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import Modal from '../componentes/Modal';
@@ -16,6 +17,7 @@ interface ArticuloMapped {
   costoCompra: number;
   desviacionDemandaL: number;
   desviacionDemandaT: number;
+  modeloInventario: string;
 }
 
 const ArticulosPage = () => {
@@ -27,7 +29,8 @@ const ArticulosPage = () => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo`);
       const data = await res.json();
-      const articulosMapeados = data.map((articulo: any) => ({
+      const lista = Array.isArray(data) ? data : data.articulos || [];
+      const articulosMapeados = lista.map((articulo: any) => ({
         codArticulo: articulo.codArticulo,
         nombre: articulo.nombreArticulo,
         descripcion: articulo.descripcionArticulo,
@@ -38,6 +41,7 @@ const ArticulosPage = () => {
         costoCompra: articulo.costoCompra,
         desviacionDemandaL: articulo.desviacionDemandaL,
         desviacionDemandaT: articulo.desviacionDemandaT,
+        modeloInventario: articulo.modeloInventario,
       }));
       setArticulos(articulosMapeados);
     } catch (error) {
@@ -51,8 +55,6 @@ const ArticulosPage = () => {
 
   return (
     <div className="flex h-screen font-sans bg-[#fdfbee]">
-
-      {/* Main content */}
       <main className="flex-1 p-10 bg-white rounded-l-3xl shadow-2xl overflow-y-auto">
         <div className="flex items-center justify-center gap-2 mb-8">
           <PackageOpen size={32} className="text-black" />
@@ -72,15 +74,16 @@ const ArticulosPage = () => {
         <table className="w-full text-sm rounded-xl overflow-hidden shadow-md bg-white">
           <thead className="bg-gray-300 rounded-3x1 overflow-hidden">
             <tr>
-              <th className="py-3 px-4 w-1/9">Nombre</th>
-              <th className="py-3 px-4 w-1/9">Descripción</th>
-              <th className="py-3 px-4 w-1/9">Stock</th>
-              <th className="py-3 px-4 w-1/9">Costo Almacenamiento</th>
-              <th className="py-3 px-4 w-1/9">Costo Pedido</th>
-              <th className="py-3 px-4 w-1/9">Demanda</th>
-              <th className="py-3 px-4 w-1/9">Costo Compra</th>
-              <th className="py-3 px-4 w-1/9">Desv. Demanda L</th>
-              <th className="py-3 px-4 w-1/9">Desv. Demanda T</th>
+              <th className="py-3 px-4">Nombre</th>
+              <th className="py-3 px-4">Descripción</th>
+              <th className="py-3 px-4">Stock</th>
+              <th className="py-3 px-4">Modelo</th>
+              <th className="py-3 px-4">Almacenamiento</th>
+              <th className="py-3 px-4">Pedido</th>
+              <th className="py-3 px-4">Compra</th>
+              <th className="py-3 px-4">Demanda</th>
+              <th className="py-3 px-4">Desv. L</th>
+              <th className="py-3 px-4">Desv. T</th>
             </tr>
           </thead>
           <tbody>
@@ -88,15 +91,16 @@ const ArticulosPage = () => {
               <tr
                 key={articulo.codArticulo}
                 className="cursor-pointer hover:bg-gray-100"
-                onDoubleClick={() => setDetalleId(articulo.codArticulo)} // <== Abrir detalle al doble click
+                onDoubleClick={() => setDetalleId(articulo.codArticulo)}
               >
                 <td className="border p-2">{articulo.nombre}</td>
                 <td className="border p-2">{articulo.descripcion}</td>
                 <td className="border p-2">{articulo.stock}</td>
+                <td className="border p-2 capitalize">{articulo.modeloInventario || "-"}</td>
                 <td className="border p-2">{articulo.costoAlmacenamiento}</td>
                 <td className="border p-2">{articulo.costoPedido}</td>
-                <td className="border p-2">{articulo.demanda}</td>
                 <td className="border p-2">{articulo.costoCompra}</td>
+                <td className="border p-2">{articulo.demanda}</td>
                 <td className="border p-2">{articulo.desviacionDemandaL}</td>
                 <td className="border p-2">{articulo.desviacionDemandaT}</td>
               </tr>
@@ -104,7 +108,6 @@ const ArticulosPage = () => {
           </tbody>
         </table>
 
-        {/* Modal para crear */}
         {mostrarModal && (
           <Modal onClose={() => setMostrarModal(false)}>
             <CrearEditarArticulo
@@ -117,7 +120,6 @@ const ArticulosPage = () => {
           </Modal>
         )}
 
-        {/* Modal para ver detalle */}
         {detalleId !== null && (
           <Modal onClose={() => setDetalleId(null)}>
             <DetalleArticulo
