@@ -1,4 +1,3 @@
-
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import Modal from '../componentes/Modal';
@@ -20,10 +19,13 @@ interface ArticuloMapped {
   modeloInventario: string;
 }
 
+type Filtro = 'todos' | 'reponer' | 'faltantes';
+
 const ArticulosPage = () => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [detalleId, setDetalleId] = useState<number | null>(null);
   const [articulos, setArticulos] = useState<ArticuloMapped[]>([]);
+  const [filtro, setFiltro] = useState<Filtro>('todos');
 
   const fetchArticulos = useCallback(async () => {
     try {
@@ -42,6 +44,16 @@ const ArticulosPage = () => {
         desviacionDemandaL: articulo.desviacionDemandaL,
         desviacionDemandaT: articulo.desviacionDemandaT,
         modeloInventario: articulo.modeloInventario,
+        puntoPedido: articulo.modeloFijoLote?.puntoPedido || 0,
+        stockSeguridad:
+          articulo.modeloFijoLote?.stockSeguridadLot ||
+          articulo.modeloFijoInventario?.stockSeguridadInt ||
+          0,
+        ordenesPendientes: articulo.ordenDetalle?.some(
+          (od: any) =>
+            od.ordenCompra?.ordenEstado?.nombreEstadoOrden === 'Pendiente' ||
+            od.ordenCompra?.ordenEstado?.nombreEstadoOrden === 'Enviada'
+        ),
       }));
       setArticulos(articulosMapeados);
     } catch (error) {
@@ -52,6 +64,18 @@ const ArticulosPage = () => {
   useEffect(() => {
     fetchArticulos();
   }, [fetchArticulos]);
+
+  const filtrarArticulos = (articulo: any) => {
+    if (filtro === 'reponer') {
+      return (
+        articulo.stock <= articulo.puntoPedido && !articulo.ordenesPendientes
+      );
+    }
+    if (filtro === 'faltantes') {
+      return articulo.stock <= articulo.stockSeguridad;
+    }
+    return true;
+  };
 
   return (
     <div className="flex h-screen font-sans bg-[#fdfbee]">
@@ -67,12 +91,45 @@ const ArticulosPage = () => {
             onClick={() => setMostrarModal(true)}
             className="flex items-center gap-2 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-full shadow-md transition hover:scale-110"
           >
-            <span className="text-lg hover:scale-110">+</span> Crear
+            <span className="text-lg">+</span> Crear
           </button>
         </div>
 
+        <div className="flex gap-4 mb-6">
+          <button
+            onClick={() => setFiltro('todos')}
+            className={`px-4 py-2 rounded-full border ${
+              filtro === 'todos' ? 'bg-black text-white' : 'bg-gray-200'
+            }`}
+          >
+            Todos
+          </button>
+          <button
+            onClick={() => setFiltro('reponer')}
+            className={`px-4 py-2 rounded-full border ${
+              filtro === 'reponer' ? 'bg-orange-500 text-white' : 'bg-gray-200'
+            }`}
+          >
+            A Reponer
+          </button>
+          <button
+            onClick={() => setFiltro('faltantes')}
+            className={`px-4 py-2 rounded-full border ${
+              filtro === 'faltantes' ? 'bg-red-600 text-white' : 'bg-gray-200'
+            }`}
+          >
+            Faltantes
+          </button>
+        </div>
+
+        {filtro !== 'todos' && (
+          <h3 className="text-lg mb-4 font-semibold">
+            Mostrando productos: {filtro === 'reponer' ? 'a reponer' : 'faltantes'}
+          </h3>
+        )}
+
         <table className="w-full text-sm rounded-xl overflow-hidden shadow-md bg-white">
-          <thead className="bg-gray-300 rounded-3x1 overflow-hidden">
+          <thead className="bg-gray-300">
             <tr>
               <th className="py-3 px-4">Nombre</th>
               <th className="py-3 px-4">Descripción</th>
@@ -87,7 +144,7 @@ const ArticulosPage = () => {
             </tr>
           </thead>
           <tbody>
-            {articulos.map((articulo) => (
+            {articulos.filter(filtrarArticulos).map((articulo) => (
               <tr
                 key={articulo.codArticulo}
                 className="cursor-pointer hover:bg-gray-100"
@@ -96,7 +153,7 @@ const ArticulosPage = () => {
                 <td className="border p-2">{articulo.nombre}</td>
                 <td className="border p-2">{articulo.descripcion}</td>
                 <td className="border p-2">{articulo.stock}</td>
-                <td className="border p-2 capitalize">{articulo.modeloInventario || "-"}</td>
+                <td className="border p-2 capitalize">{articulo.modeloInventario || '-'}</td>
                 <td className="border p-2">{articulo.costoAlmacenamiento}</td>
                 <td className="border p-2">{articulo.costoPedido}</td>
                 <td className="border p-2">{articulo.costoCompra}</td>
