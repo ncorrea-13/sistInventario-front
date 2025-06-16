@@ -3,15 +3,20 @@ import { useEffect, useState } from 'react';
 import Modal from '../componentes/Modal';
 import CrearEditarProveedor from './CrearEditarProveedor';
 import { PackageOpen } from 'lucide-react';
+import AsignarProvArt from './AsignarProvArt';
 
 interface Proveedor {
   codProveedor: number;
   nombreProv: string;
+  direccion?: string;
+  telefono?: string;
+  email?: string;
   fechaBaja: string | null;
 }
 
 export default function ProveedoresPage() {
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [mostrarAsociar, setMostrarAsociar] = useState(false);
   const [proveedores, setProveedores] = useState<Proveedor[]>([]);
   const [proveedorSeleccionado, setProveedorSeleccionado] = useState<Proveedor | null>(null);
 
@@ -97,6 +102,15 @@ export default function ProveedoresPage() {
                   >
                     Baja
                   </button>
+                  <button
+                    className="text-green-600 hover:underline"
+                    onClick={() => {
+                      setProveedorSeleccionado(prov);
+                      setMostrarAsociar(true);
+                    }}
+                  >
+                    Asociar Artículo
+                  </button>
                 </td>
               </tr>
             ))}
@@ -109,7 +123,21 @@ export default function ProveedoresPage() {
               onClose={() => setMostrarModal(false)}
               onGuardar={fetchProveedores}
               proveedorId={proveedorSeleccionado?.codProveedor}
-              proveedorNombre={proveedorSeleccionado?.nombreProv}
+              proveedorData={proveedorSeleccionado ? {
+                nombreProv: proveedorSeleccionado.nombreProv || '',
+                direccion: proveedorSeleccionado.direccion || '',
+                telefono: proveedorSeleccionado.telefono || '',
+                email: proveedorSeleccionado.email || '',
+              } : undefined}
+            />
+          </Modal>
+        )}
+        {mostrarAsociar && (
+          <Modal onClose={() => setMostrarAsociar(false)}>
+            <AsignarProvArt
+              onClose={() => setMostrarAsociar(false)}
+              onAsignar={fetchProveedores}
+              proveedorId={proveedorSeleccionado?.codProveedor}
             />
           </Modal>
         )}
