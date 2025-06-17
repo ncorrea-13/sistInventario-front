@@ -13,6 +13,14 @@ export default function CrearEditarOrdenCompra({ orden, onClose }: OrdenCompraFo
   const [proveedorId, setProveedorId] = useState('');
   const [articuloId, setArticuloId] = useState('');
   const [ordenEstadoId, setOrdenEstadoId] = useState('');
+  const [articulos, setArticulos] = useState<any[]>([]);
+
+  const ESTADOS_ORDEN = [
+    { codEstadoOrden: 1, nombreEstadoOrden: 'PENDIENTE' },
+    { codEstadoOrden: 2, nombreEstadoOrden: 'FINALIZADA' },
+    { codEstadoOrden: 3, nombreEstadoOrden: 'ENVIADA' },
+    { codEstadoOrden: 4, nombreEstadoOrden: 'FINALIZADA' },
+  ];
 
   useEffect(() => {
     if (orden) {
@@ -21,6 +29,16 @@ export default function CrearEditarOrdenCompra({ orden, onClose }: OrdenCompraFo
       //setMontoOrden(String(orden.montoOrden));
       setProveedorId(String(orden.proveedorId));
       setOrdenEstadoId(String(orden.ordenEstadoId));
+    }
+  }, [orden]);
+
+  useEffect(() => {
+    // Solo cargar artículos si estamos creando
+    if (!orden) {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo`)
+        .then(res => res.json())
+        .then(data => setArticulos(Array.isArray(data) ? data : data.articulos || []))
+        .catch(() => setArticulos([]));
     }
   }, [orden]);
 
@@ -81,14 +99,20 @@ export default function CrearEditarOrdenCompra({ orden, onClose }: OrdenCompraFo
       <form onSubmit={(e) => { e.preventDefault(); handleGuardar(); }} className="grid grid-cols-2 gap-4">
         {!orden && (
           <div className="col-span-2">
-            <label className="block text-sm font-medium mb-1">ID Artículo</label>
-            <input
-              type="number"
+            <label className="block text-sm font-medium mb-1">Artículo</label>
+            <select
               value={articuloId}
               onChange={(e) => setArticuloId(e.target.value)}
               className="border rounded px-3 py-2 w-full"
               required
-            />
+            >
+              <option value="">Seleccioná un artículo</option>
+              {articulos.map((art) => (
+                <option key={art.codArticulo} value={art.codArticulo}>
+                  {art.nombreArticulo}
+                </option>
+              ))}
+            </select>
           </div>
         )}
         {orden && (
@@ -125,14 +149,20 @@ export default function CrearEditarOrdenCompra({ orden, onClose }: OrdenCompraFo
         </div>
         {orden && (
           <div>
-            <label className="block text-sm font-medium mb-1">Estado ID</label>
-            <input
-              type="number"
+            <label className="block text-sm font-medium mb-1">Estado</label>
+            <select
               value={ordenEstadoId}
               onChange={(e) => setOrdenEstadoId(e.target.value)}
               className="border rounded px-3 py-2 w-full"
               required
-            />
+            >
+              <option value="">Seleccioná un estado</option>
+              {ESTADOS_ORDEN.map((estado) => (
+                <option key={estado.codEstadoOrden} value={estado.codEstadoOrden}>
+                  {estado.nombreEstadoOrden}
+                </option>
+              ))}
+            </select>
           </div>
         )}
         <div className="col-span-2 flex justify-end gap-2 mt-4">
