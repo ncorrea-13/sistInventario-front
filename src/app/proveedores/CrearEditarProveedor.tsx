@@ -1,140 +1,147 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-interface ProveedorData {
-  nombreProv: string;
-  direccion: string;
-  telefono: string;
-  email: string;
+interface ProveedorArticulo {
+  id: number;
+  precioUnitaria: number;
+  demoraEntrega: number;
+  cargoPedido: number;
+  predeterminado: boolean;
+  proveedor: {
+    nombreProv: string;
+  };
 }
 
-export default function CrearEditarProveedor({
-  onClose,
-  onGuardar,
-  proveedorId,
-  proveedorData = {
-    nombreProv: '',
-    direccion: '',
-    telefono: '',
-    email: '',
-  },
-}: {
+interface ArticuloDetalle {
+  codArticulo: number;
+  nombreArticulo: string;
+  descripcionArticulo: string;
+  stockActual: number;
+  costoAlmacenamiento: number;
+  costoCompra: number;
+  costoPedido: number;
+  costoMantenimiento: number;
+  demandaAnual: number;
+  desviacionDemandaL: number;
+  desviacionDemandaT: number;
+  nivelServicioDeseado: number;
+  proveedorArticulos: ProveedorArticulo[];
+}
+
+interface Props {
   onClose: () => void;
   onGuardar: () => void;
   proveedorId?: number;
-  proveedorData?: ProveedorData;
-}) {
-  const [formData, setFormData] = useState<ProveedorData>(proveedorData);
+  proveedorNombre?: string;
+}
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+export default function CrearEditarProveedor({ onClose, onGuardar, proveedorId, proveedorNombre }: Props) {
+  const [nombre, setNombre] = useState(proveedorNombre || '');
 
   const handleGuardar = async () => {
-    try {
-      // Validar campos requeridos
-      if (!formData.nombreProv.trim()) {
-        alert('El nombre del proveedor es requerido');
-        return;
-      }
+    if (!nombre.trim()) {
+      alert('El nombre no puede estar vacío');
+      return;
+    }
 
+    try {
       const url = proveedorId
         ? `${process.env.NEXT_PUBLIC_API_URL}/proveedor/${proveedorId}`
         : `${process.env.NEXT_PUBLIC_API_URL}/proveedor`;
 
-      const method = proveedorId ? 'PUT' : 'POST';
-
       const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        method: proveedorId ? 'PUT' : 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ nombreProv: nombre.trim() }),
       });
 
-      if (!res.ok) {
-        const errorData = await res.text();
-        console.error('Error del servidor:', errorData);
-        throw new Error('Error al guardar proveedor');
-      }
-
+      if (!res.ok) throw new Error();
       onGuardar();
       onClose();
     } catch (err) {
-      console.error('Error al guardar:', err);
-      alert('No se pudo guardar el proveedor');
+      alert('Error al guardar proveedor');
+      console.error(err);
     }
   };
 
+  const [proveedor, setProveedor] = useState<ProveedorArticulo | null>(null);
+  const [editando, setEditando] = useState(false);
+  const [formData, setFormData] = useState<Partial<ArticuloDetalle>>({});
+
+  useEffect(() => {
+    if (!proveedorId) return;
+    const fetchDetalle = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo/${proveedorId}`);
+        const data = await res.json();
+        setProveedor(data);
+        setFormData(data);
+      } catch (err) {
+        console.error('Error al cargar detalle:', err);
+      }
+    };
+    fetchDetalle();
+  }, [proveedorId]);
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name.includes("stock") || name.includes("costo") || name.includes("demanda") || name.includes("desviacion") || name.includes("nivel")
+        ? Number(value)
+        : value,
+    }));
+  };
+  
+  const handleGuardarCambios = async () => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo/${proveedorId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      if (res.ok) {
+        const actualizado = await res.json();
+        setProveedor(actualizado);
+        setEditando(false);
+        onRefrescar();
+      } else {
+        alert('Error al guardar los cambios');
+      }
+    } catch (err) {
+      console.error('Error al guardar:', err);
+    }
+  };
+
+  function setMostrarModal(arg0: boolean) {
+    throw new Error('Function not implemented.');
+  }
+
+  function setProveedorSeleccionado(prov: any) {
+    throw new Error('Function not implemented.');
+  }
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+      
       <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
-        <h2 className="text-xl font-semibold mb-4">
+        <h2 className="text-2xl font-bold mb-4">
           {proveedorId ? 'Editar Proveedor' : 'Crear Proveedor'}
         </h2>
-        
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Nombre</label>
-            <input
-              type="text"
-              name="nombreProv"
-              className="w-full border px-3 py-2 rounded"
-              value={formData.nombreProv}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Dirección</label>
-            <input
-              type="text"
-              name="direccion"
-              className="w-full border px-3 py-2 rounded"
-              value={formData.direccion}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Teléfono</label>
-            <input
-              type="text"
-              name="telefono"
-              className="w-full border px-3 py-2 rounded"
-              value={formData.telefono}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-2">Email</label>
-            <input
-              type="email"
-              name="email"
-              className="w-full border px-3 py-2 rounded"
-              value={formData.email}
-              onChange={handleChange}
-            />
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-2 mt-6">
-          <button 
-            type="button"
-            className="bg-gray-400 px-4 py-2 rounded text-white" 
-            onClick={onClose}
-          >
+        <label className="block text-sm font-medium mb-2">Nombre</label>
+        <input
+          type="text"
+          className="w-full border px-3 py-2 rounded mb-4"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+        />
+        <div className="flex justify-end gap-2">
+          <button className="bg-gray-400 px-4 py-2 rounded text-white" onClick={onClose}>
             Cancelar
           </button>
-          <button 
-            type="button"
-            className="bg-blue-600 px-4 py-2 rounded text-white" 
-            onClick={handleGuardar}
-          >
+          <button className="bg-blue-600 px-4 py-2 rounded text-white" onClick={handleGuardar}>
             Guardar
           </button>
         </div>
@@ -142,3 +149,11 @@ export default function CrearEditarProveedor({
     </div>
   );
 }
+function setProveedor(data: any) {
+  throw new Error('Function not implemented.');
+}
+
+function onRefrescar() {
+  throw new Error('Function not implemented.');
+}
+
