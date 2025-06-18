@@ -3,23 +3,25 @@ import React, { useState } from "react";
 export default function CrearEditarArticulo({
   onClose,
   onGuardar,
+  articuloInicial,
 }: {
   onClose: () => void;
   onGuardar: () => void;
+  articuloInicial?: any;
 }) {
   const [formData, setFormData] = useState({
-    nombreArticulo: "",
-    descripcionArticulo: "",
-    stockActual: "0",
-    costoAlmacenamiento: "0",
-    costoCompra: "0",
-    costoPedido: "0",
-    costoMantenimiento: "0",
-    demandaAnual: "0",
-    desviacionDemandaL: "0",
-    desviacionDemandaT: "0",
-    nivelServicioDeseado: "0",
-    modeloInventario: "loteFijo",
+    nombreArticulo: articuloInicial?.nombreArticulo || "",
+    descripcionArticulo: articuloInicial?.descripcionArticulo || "",
+    stockActual: articuloInicial?.stockActual?.toString() || "0",
+    costoAlmacenamiento: articuloInicial?.costoAlmacenamiento?.toString() || "0",
+    costoCompra: articuloInicial?.costoCompra?.toString() || "0",
+    costoPedido: articuloInicial?.costoPedido?.toString() || "0",
+    costoMantenimiento: articuloInicial?.costoMantenimiento?.toString() || "0",
+    demandaAnual: articuloInicial?.demandaAnual?.toString() || "0",
+    desviacionDemandaL: articuloInicial?.desviacionDemandaL?.toString() || "0",
+    desviacionDemandaT: articuloInicial?.desviacionDemandaT?.toString() || "0",
+    nivelServicioDeseado: articuloInicial?.nivelServicioDeseado?.toString() || "0",
+    modeloInventario: articuloInicial?.modeloInventario || "loteFijo",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -44,13 +46,24 @@ export default function CrearEditarArticulo({
     console.log("📦 Enviando artículo al backend:", articulo);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(articulo),
-      });
+      let res;
+      if (articuloInicial && articuloInicial.codArticulo) {
+        // Edición
+        res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo/${articuloInicial.codArticulo}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(articulo),
+        });
+      } else {
+        // Creación
+        res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(articulo),
+        });
+      }
 
-      if (!res.ok) throw new Error("Error al crear el artículo");
+      if (!res.ok) throw new Error("Error al guardar el artículo");
 
       onGuardar();
       onClose();
