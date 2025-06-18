@@ -2,22 +2,24 @@
 import { useEffect, useState } from 'react';
 import Modal from '../componentes/Modal';
 import CrearEditarProveedor from './CrearEditarProveedor';
+import AsociarArticulo from './AsociarArticulo';
+import VerArticulosAsociados from './VerArticulosAsociados';
 import { PackageOpen } from 'lucide-react';
-import AsignarProvArt from './AsignarProvArt';
+import DetalleProveedor from './DetalleProveedor';
 
 interface Proveedor {
   codProveedor: number;
   nombreProv: string;
-  direccion?: string;
-  telefono?: string;
-  email?: string;
   fechaBaja: string | null;
+  predeterminado: boolean;
 }
 
 export default function ProveedoresPage() {
   const [mostrarModal, setMostrarModal] = useState(false);
-  const [mostrarAsociar, setMostrarAsociar] = useState(false);
+  const [mostrarModalAsociar, setMostrarModalAsociar] = useState(false);
+  const [mostrarModalVerArticulos, setMostrarModalVerArticulos] = useState(false);
   const [proveedores, setProveedores] = useState<Proveedor[]>([]);
+  const [detalleId, setDetalleId] = useState<number | null>(null);
   const [proveedorSeleccionado, setProveedorSeleccionado] = useState<Proveedor | null>(null);
 
   const fetchProveedores = async () => {
@@ -31,15 +33,46 @@ export default function ProveedoresPage() {
   };
 
   const handleEliminar = async (id: number) => {
-    if (!confirm('¿Seguro que querés dar de baja este proveedor?')) return;
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/proveedor/${id}/baja`, {
+      // Verificamos si el proveedor tiene artículos asociados
+      const resArticulos = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/proveedor/${id}`);
+      const articulos = await resArticulos.json();
+      
+      if (articulos.length > 0) {
+        alert('No se puede dar de baja el proveedor: posee artículos asociados');
+        return;
+      }
+      
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/proveedor/${id}`, {
         method: 'PATCH',
       });
       if (!res.ok) throw new Error();
       fetchProveedores();
     } catch (err) {
-      alert('Error al eliminar proveedor');
+      alert('Error al dar de baja el proveedor');
+      console.error(err);
+    }
+  };
+
+  const handlePredeterminado = async (id: number) => {
+    try {
+      // Si el proveedor ya es predeterminado, no hacemos nada
+      const proveedor = proveedores.find(p => p.codProveedor === id);
+      if (proveedor?.predeterminado) return;
+
+      // Verificamos si ya hay un proveedor predeterminado
+      const proveedorPredeterminado = proveedores.find(p => p.predeterminado);
+      if (proveedorPredeterminado) {
+        if (!confirm('Ya existe un proveedor predeterminado. ¿Desea cambiarlo?')) return;
+      }
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/proveedor/${id}/predeterminado`, {
+        method: 'PATCH',
+      });
+      if (!res.ok) throw new Error();
+      fetchProveedores();
+    } catch (err) {
+      alert('Error al actualizar proveedor predeterminado');
       console.error(err);
     }
   };
@@ -77,39 +110,61 @@ export default function ProveedoresPage() {
               <th className="py-3 px-4">Código</th>
               <th className="py-3 px-4">Nombre</th>
               <th className="py-3 px-4">Fecha Baja</th>
+              <th className="py-3 px-4">Predeterminado</th>
               <th className="py-3 px-4">Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {proveedores.map((prov) => (
-              <tr key={prov.codProveedor} className="text-center border-b hover:bg-gray-100">
+            {proveedores
+              .sort((a, b) => {
+                // Si uno tiene fecha de baja y el otro no, el que tiene fecha de baja va al final
+                if (a.fechaBaja && !b.fechaBaja) return 1;
+                if (!a.fechaBaja && b.fechaBaja) return -1;
+                // Si ambos tienen o no tienen fecha de baja, ordenar por código
+                return a.codProveedor - b.codProveedor;
+              })
+              .map((prov) => (
+              <tr 
+                key={prov.codProveedor} 
+                className="text-center border-b hover:bg-gray-100"
+                onDoubleClick={() => setDetalleId(prov.codProveedor)}
+                >
                 <td className="py-2 px-4">{prov.codProveedor}</td>
                 <td className="py-2 px-4">{prov.nombreProv}</td>
                 <td className="py-2 px-4">{prov.fechaBaja || '—'}</td>
+                <td className="py-2 px-4">
+                  <input
+                    type="radio"
+                    name="predeterminado"
+                    checked={prov.predeterminado}
+                    onChange={() => handlePredeterminado(prov.codProveedor)}
+                    className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                  />
+                </td>
                 <td className="py-2 px-4 flex justify-center gap-2">
                   <button
-                    className="text-blue-600 hover:underline"
+                    className="text-green-600 hover:underline"
                     onClick={() => {
                       setProveedorSeleccionado(prov);
-                      setMostrarModal(true);
+                      setMostrarModalAsociar(true);
                     }}
                   >
-                    Editar
+                    Asociar Artículo
+                  </button>
+                  <button
+                    className="text-purple-600 hover:underline"
+                    onClick={() => {
+                      setProveedorSeleccionado(prov);
+                      setMostrarModalVerArticulos(true);
+                    }}
+                  >
+                    Ver Artículos
                   </button>
                   <button
                     className="text-red-600 hover:underline"
                     onClick={() => handleEliminar(prov.codProveedor)}
                   >
                     Baja
-                  </button>
-                  <button
-                    className="text-green-600 hover:underline"
-                    onClick={() => {
-                      setProveedorSeleccionado(prov);
-                      setMostrarAsociar(true);
-                    }}
-                  >
-                    Asociar Artículo
                   </button>
                 </td>
               </tr>
@@ -123,21 +178,36 @@ export default function ProveedoresPage() {
               onClose={() => setMostrarModal(false)}
               onGuardar={fetchProveedores}
               proveedorId={proveedorSeleccionado?.codProveedor}
-              proveedorData={proveedorSeleccionado ? {
-                nombreProv: proveedorSeleccionado.nombreProv || '',
-                direccion: proveedorSeleccionado.direccion || '',
-                telefono: proveedorSeleccionado.telefono || '',
-                email: proveedorSeleccionado.email || '',
-              } : undefined}
+              proveedorNombre={proveedorSeleccionado?.nombreProv}
             />
           </Modal>
         )}
-        {mostrarAsociar && (
-          <Modal onClose={() => setMostrarAsociar(false)}>
-            <AsignarProvArt
-              onClose={() => setMostrarAsociar(false)}
-              onAsignar={fetchProveedores}
-              proveedorId={proveedorSeleccionado?.codProveedor}
+
+        {detalleId && (
+          <Modal onClose={() => setDetalleId(null)}>
+            <DetalleProveedor
+              codProveedor={detalleId}
+              onClose={() => setDetalleId(null)}
+              onRefrescar={fetchProveedores}
+            />
+          </Modal>
+        )}
+
+        {mostrarModalAsociar && proveedorSeleccionado && (
+          <Modal onClose={() => setMostrarModalAsociar(false)}>
+            <AsociarArticulo
+              proveedorId={proveedorSeleccionado.codProveedor}
+              onClose={() => setMostrarModalAsociar(false)}
+              onGuardar={fetchProveedores}
+            />
+          </Modal>
+        )}
+
+        {mostrarModalVerArticulos && proveedorSeleccionado && (
+          <Modal onClose={() => setMostrarModalVerArticulos(false)}>
+            <VerArticulosAsociados
+              proveedorId={proveedorSeleccionado.codProveedor}
+              onClose={() => setMostrarModalVerArticulos(false)}
             />
           </Modal>
         )}
