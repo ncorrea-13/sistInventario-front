@@ -1,20 +1,10 @@
 'use client';
 import { useEffect, useState } from 'react';
+import CrearEditarArticulo from './CrearEditarArticulos';
 
 interface Proveedor {
   codProveedor: number;
   nombreProv: string;
-}
-
-interface ProveedorArticulo {
-  id: number;
-  precioUnitaria: number;
-  demoraEntrega: number;
-  cargoPedido: number;
-  predeterminado: boolean;
-  proveedor: {
-    nombreProv: string;
-  };
 }
 
 interface ArticuloDetalle {
@@ -31,7 +21,7 @@ interface ArticuloDetalle {
   desviacionDemandaT: number;
   nivelServicioDeseado: number;
   modeloInventario: string;
-  proveedorArticulos: ProveedorArticulo[];
+  proveedores: Proveedor[];
 }
 
 export default function DetalleArticulo({
@@ -45,17 +35,16 @@ export default function DetalleArticulo({
 }) {
   const [articulo, setArticulo] = useState<ArticuloDetalle | null>(null);
   const [proveedores, setProveedores] = useState<Proveedor[]>([]);
-  const [showAsociar, setShowAsociar] = useState(false);
-  const [nuevoProv, setNuevoProv] = useState({
-    proveedorId: 0,
-    predeterminado: false,
-  });
+  const [showAsignarPred, setShowAsignarPred] = useState(false);
+  const [proveedorPredId, setProveedorPredId] = useState<number | null>(null);
+  const [editando, setEditando] = useState(false);
 
   useEffect(() => {
     const fetchDetalle = async () => {
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo/${codArticulo}`);
         const data = await res.json();
+        console.log('Detalle artículo:', data);
         setArticulo(data);
       } catch (err) {
         console.error('Error al cargar detalle:', err);
@@ -75,41 +64,73 @@ export default function DetalleArticulo({
     }
   };
 
-  const handleAsociarProveedor = async () => {
-    if (nuevoProv.proveedorId === 0) {
-      alert("Debe seleccionar un proveedor");
+  const handleAsignarPredeterminado = async () => {
+    if (!proveedorPredId || !articulo) {
+      alert('Debe seleccionar un proveedor asociado');
       return;
     }
-
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/proveedor/${nuevoProv.proveedorId}/asociar-articulo`, {
-        method: 'POST',
+      const body = {
+        nombreArticulo: articulo.nombreArticulo,
+        modeloInventario: articulo.modeloInventario,
+        demandaAnual: articulo.demandaAnual,
+        costoPedido: articulo.costoPedido,
+        costoAlmacenamiento: articulo.costoAlmacenamiento,
+        desviacionDemandaT: articulo.desviacionDemandaT,
+        nivelServicioDeseado: articulo.nivelServicioDeseado,
+        stockActual: articulo.stockActual,
+        provId: proveedorPredId
+      };
+      console.log('Body enviado al backend:', body);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo/${articulo.codArticulo}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          articuloId: codArticulo,
-          precioUnitaria: 0,
-          demoraEntrega: 0,
-          cargoPedido: 0,
-          predeterminado: nuevoProv.predeterminado,
-        }),
+        body: JSON.stringify(body),
       });
+      if (!res.ok) throw new Error('Error al actualizar el proveedor predeterminado');
+      alert('Proveedor predeterminado actualizado');
+      setShowAsignarPred(false);
+      setProveedorPredId(null);
+      onRefrescar();
+    } catch (err) {
+      alert('Error al actualizar el proveedor predeterminado');
+      console.error(err);
+    }
+  };
 
+  const handleEliminar = async () => {
+    if (!window.confirm('¿Seguro que deseas eliminar este artículo?')) return;
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo/${codArticulo}/baja`, {
+        method: 'PATCH',
+      });
       if (res.ok) {
-        alert('Proveedor asociado correctamente');
-        setShowAsociar(false);
-        setNuevoProv({ proveedorId: 0, predeterminado: false });
+        alert('Artículo eliminado correctamente');
+        onClose();
         onRefrescar();
       } else {
-        const errorText = await res.text();
-        console.error("❌", errorText);
-        alert('Error al asociar proveedor');
+        alert('Error al eliminar el artículo');
       }
     } catch (err) {
+      alert('Error al eliminar el artículo');
       console.error(err);
     }
   };
 
   if (!articulo) return <div className="p-4">Cargando...</div>;
+
+  if (editando) {
+    return (
+      <CrearEditarArticulo
+        articuloInicial={articulo}
+        onClose={() => setEditando(false)}
+        onGuardar={() => {
+          setEditando(false);
+          onRefrescar();
+        }}
+      />
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl p-6 max-w-2xl w-full shadow-lg">
@@ -120,11 +141,11 @@ export default function DetalleArticulo({
 
       <h3 className="text-lg font-bold mt-4 mb-2">Proveedores asociados</h3>
       <ul className="list-inside text-sm">
-        {articulo.proveedorArticulos?.length > 0 ? (
-          articulo.proveedorArticulos.map((prov, i) => (
+        {(articulo.proveedores || []).length > 0 ? (
+          articulo.proveedores.map((prov, i) => (
             <li key={i}>
-              {prov.proveedor.nombreProv}
-              {prov.predeterminado && <span className="text-green-600 font-bold ml-2">(Predeterminado)</span>}
+              {prov.nombreProv}
+              {/* Aquí podrías marcar el predeterminado si tienes esa info */}
             </li>
           ))
         ) : (
@@ -133,48 +154,44 @@ export default function DetalleArticulo({
       </ul>
 
       <button
-        onClick={() => {
-          fetchProveedores();
-          setShowAsociar(true);
-        }}
+        onClick={() => setShowAsignarPred(true)}
         className="mt-4 text-blue-600 underline"
       >
-        Asociar nuevo proveedor
+        Asignar proveedor predeterminado
       </button>
 
-      {showAsociar && (
+      {showAsignarPred && (
         <div className="mt-4 p-4 bg-gray-100 rounded">
-          <h4 className="font-bold mb-2">Seleccionar proveedor</h4>
-
-          <select
-            value={nuevoProv.proveedorId}
-            onChange={(e) => setNuevoProv({ ...nuevoProv, proveedorId: Number(e.target.value) })}
-            className="w-full mb-2 p-2 border rounded"
-          >
-            <option value={0}>Seleccione un proveedor</option>
-            {proveedores.map((p) => (
-              <option key={p.codProveedor} value={p.codProveedor}>{p.nombreProv}</option>
-            ))}
-          </select>
-
-          <label className="flex items-center gap-2 mb-2">
-            <input
-              type="checkbox"
-              checked={nuevoProv.predeterminado}
-              onChange={(e) => setNuevoProv({ ...nuevoProv, predeterminado: e.target.checked })}
-            />
-            Es proveedor predeterminado
-          </label>
-
-          <div className="flex gap-2 justify-end">
-            <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={handleAsociarProveedor}>Asociar</button>
-            <button className="bg-gray-400 text-white px-3 py-1 rounded" onClick={() => setShowAsociar(false)}>Cancelar</button>
+          <h4 className="font-bold mb-2">Seleccionar proveedor predeterminado</h4>
+          {((articulo.proveedores || []).length === 0) ? (
+            <div className="text-red-600 mb-2">No hay proveedores asociados para seleccionar.</div>
+          ) : (
+            <>
+              <select
+                value={proveedorPredId ?? 0}
+                onChange={e => setProveedorPredId(Number(e.target.value))}
+                className="w-full mb-2 p-2 border rounded"
+              >
+                <option value={0}>Seleccione un proveedor</option>
+                {(articulo.proveedores || []).map((prov) => (
+                  <option key={prov.codProveedor} value={prov.codProveedor}>{prov.nombreProv}</option>
+                ))}
+              </select>
+              <div className="flex gap-2 justify-end">
+                <button className="bg-green-600 text-white px-3 py-1 rounded" onClick={handleAsignarPredeterminado}>Guardar</button>
+              </div>
+            </>
+          )}
+          <div className="flex gap-2 justify-end mt-2">
+            <button className="bg-gray-400 text-white px-3 py-1 rounded" onClick={() => setShowAsignarPred(false)}>Cerrar</button>
           </div>
         </div>
       )}
 
       <div className="flex justify-end mt-6 gap-4">
         <button className="bg-gray-400 text-white px-4 py-2 rounded" onClick={onClose}>Cerrar</button>
+        <button className="bg-blue-600 text-white px-4 py-2 rounded" onClick={() => setEditando(true)}>Editar</button>
+        <button className="bg-red-600 text-white px-4 py-2 rounded" onClick={handleEliminar}>Eliminar</button>
       </div>
     </div>
   );
