@@ -18,14 +18,14 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center text-white bg-gradient-to-t from-gray-900 to-white">
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-4">Stocker</h1>
+        <h1 className="text-6xl font-bold mb-4">Stocker</h1>
         <p className="text-xl">Sistema de Gestión de Inventario</p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="flex flex-wrap justify-center gap-6 max-w-2xl">
         <button 
           onClick={() => router.push('/articulos')}
-          className="flex flex-col items-center p-6 bg-white/10 rounded-lg hover:bg-white/20 transition"
+          className="flex flex-col items-center p-6 bg-white/10 rounded-lg hover:bg-white/20 transition w-48"
         >
           <Package className="w-12 h-12 mb-2" />
           <span>Artículos</span>
@@ -33,7 +33,7 @@ export default function Home() {
 
         <button 
           onClick={() => router.push('/proveedores')}
-          className="flex flex-col items-center p-6 bg-white/10 rounded-lg hover:bg-white/20 transition"
+          className="flex flex-col items-center p-6 bg-white/10 rounded-lg hover:bg-white/20 transition w-48"
         >
           <Truck className="w-12 h-12 mb-2" />
           <span>Proveedores</span>
@@ -41,7 +41,7 @@ export default function Home() {
 
         <button 
           onClick={() => router.push('/ordenCompra')}
-          className="flex flex-col items-center p-6 bg-white/10 rounded-lg hover:bg-white/20 transition"
+          className="flex flex-col items-center p-6 bg-white/10 rounded-lg hover:bg-white/20 transition w-48"
         >
           <ShoppingCart className="w-12 h-12 mb-2" />
           <span>Órdenes de Compra</span>
@@ -49,7 +49,7 @@ export default function Home() {
 
         <button 
           onClick={() => router.push('/ventas')}
-          className="flex flex-col items-center p-6 bg-white/10 rounded-lg hover:bg-white/20 transition"
+          className="flex flex-col items-center p-6 bg-white/10 rounded-lg hover:bg-white/20 transition w-48"
         >
           <BadgeDollarSign className="w-12 h-12 mb-2" />
           <span>Ventas</span>

@@ -101,6 +101,7 @@ export default function VerArticulosAsociados({ proveedorId, onClose }: VerArtic
                 <th className="py-2 px-4 text-right">Precio Unitario</th>
                 <th className="py-2 px-4 text-right">Demora (días)</th>
                 <th className="py-2 px-4 text-right">Cargo Pedido</th>
+                <th className="py-2 px-4 text-center">Predeterminado</th>
               </tr>
             </thead>
             <tbody>
@@ -115,6 +116,17 @@ export default function VerArticulosAsociados({ proveedorId, onClose }: VerArtic
                   <td className="py-2 px-4 text-right">${asociacion.precioUnitaria.toFixed(2)}</td>
                   <td className="py-2 px-4 text-right">{asociacion.demoraEntrega}</td>
                   <td className="py-2 px-4 text-right">${asociacion.cargoPedido.toFixed(2)}</td>
+                  <td className="py-2 px-4 text-center">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        asociacion.predeterminado
+                          ? 'bg-green-200 text-green-800'
+                          : 'bg-red-200 text-red-800'
+                      }`}
+                    >
+                      {asociacion.predeterminado ? 'Sí' : 'No'}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>
