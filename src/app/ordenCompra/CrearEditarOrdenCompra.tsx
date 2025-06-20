@@ -21,9 +21,9 @@ export default function CrearEditarOrdenCompra({ orden, onClose }: OrdenCompraFo
 
   const ESTADOS_ORDEN = [
     { codEstadoOrden: 1, nombreEstadoOrden: 'PENDIENTE' },
-    { codEstadoOrden: 2, nombreEstadoOrden: 'FINALIZADA' },
-    { codEstadoOrden: 3, nombreEstadoOrden: 'ENVIADA' },
-    { codEstadoOrden: 4, nombreEstadoOrden: 'FINALIZADA' },
+    { codEstadoOrden: 2, nombreEstadoOrden: 'ENVIADA' },
+    { codEstadoOrden: 3, nombreEstadoOrden: 'FINALIZADA' },
+    { codEstadoOrden: 4, nombreEstadoOrden: 'CANCELADA' },
   ];
 
   useEffect(() => {
@@ -46,6 +46,22 @@ export default function CrearEditarOrdenCompra({ orden, onClose }: OrdenCompraFo
           setArticulos(Array.isArray(data) ? data : data.articulos || []);
         })
         .catch(() => setArticulos([]));
+    }
+    // Si estamos editando, cargar proveedores asociados al artículo de la orden
+    if (orden && orden.detalles && orden.detalles.length > 0) {
+      const articuloId = orden.detalles[0].articuloId;
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo/${articuloId}`)
+        .then(res => res.json())
+        .then(data => {
+          let proveedores = data.proveedorArticulos || data.proveedores || [];
+          proveedores = proveedores.map((p: any) => ({
+            codProveedor: p.proveedorId || p.codProveedor,
+            nombreProv: p.proveedor?.nombreProv || p.nombreProv,
+            predeterminado: p.predeterminado,
+          }));
+          setProveedoresAsociados(proveedores);
+        })
+        .catch(() => setProveedoresAsociados([]));
     }
   }, [orden]);
 
@@ -109,18 +125,34 @@ export default function CrearEditarOrdenCompra({ orden, onClose }: OrdenCompraFo
         return;
       }
 
+      // Solo al crear, verificar si ya existe una OC pendiente o enviada para el artículo
+      if (!orden) {
+        const resCheck = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ordenCompra`);
+        const ordenes = await resCheck.json();
+        const existeOC = Array.isArray(ordenes) && ordenes.some((oc: any) => {
+          const tieneArticulo = oc.detalles && oc.detalles.some((d: any) => d.articuloId === Number(articuloId));
+          const estado = oc.ordenEstado?.nombreEstadoOrden || (oc.ordenEstadoId && (['PENDIENTE', 'ENVIADA'].includes(oc.ordenEstadoId)));
+          return tieneArticulo && (oc.ordenEstado?.nombreEstadoOrden === 'PENDIENTE' || oc.ordenEstado?.nombreEstadoOrden === 'ENVIADA');
+        });
+        if (existeOC) {
+          const continuar = window.confirm('Ya existe una orden de compra para este artículo ¿Desea continuar?');
+          if (!continuar) return;
+        }
+      }
+
       if (orden) {
         const payload = {
           datosActualizados: {
             numOrdenCompra: Number(numOrdenCompra),
             tamanoLote: Number(tamanoLote),
             proveedorId: Number(proveedorId),
+            articuloId: Number(articuloId),
             ordenEstadoId: Number(ordenEstadoId),
           },
         };
         console.log('Payload enviado (editar OC):', payload);
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ordenCompra/${orden.ordenCompraId}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ordenCompra/${orden.numOrdenCompra}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
@@ -215,6 +247,28 @@ export default function CrearEditarOrdenCompra({ orden, onClose }: OrdenCompraFo
             />
           </div>
         )}
+        {/* Proveedor solo en edición */}
+        {orden && (
+          <div className="col-span-2">
+            <label className="block text-sm font-medium mb-1">Proveedor</label>
+            <select
+              value={proveedorId}
+              onChange={(e) => setProveedorId(e.target.value)}
+              className="border rounded px-3 py-2 w-full"
+              required
+            >
+              {proveedoresAsociados.map((prov) => (
+                <option
+                  key={prov.codProveedor}
+                  value={prov.codProveedor}
+                  style={prov.predeterminado ? { fontWeight: 'bold', color: '#2563eb' } : {}}
+                >
+                  {prov.nombreProv} {prov.predeterminado ? '(Predeterminado)' : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <div>
           <label className="block text-sm font-medium mb-1">Tamaño Lote {tamanoLoteSugerido && <span className="text-xs text-blue-600">(Sugerido: {tamanoLoteSugerido})</span>}</label>
           <input
@@ -223,29 +277,33 @@ export default function CrearEditarOrdenCompra({ orden, onClose }: OrdenCompraFo
             onChange={(e) => setTamanoLote(e.target.value)}
             className="border rounded px-3 py-2 w-full"
             required
+            disabled={!orden && !articuloId}
           />
           {/* Mostrar lote óptimo si corresponde */}
           {tamanoLoteSugerido && (
             <div className="text-xs text-blue-700 mt-1">Lote óptimo sugerido por el sistema: <b>{tamanoLoteSugerido}</b></div>
           )}
         </div>
-
-        <div>
-          <label className="block text-sm font-medium mb-1">Estado</label>
-          <select
-            value={ordenEstadoId}
-            onChange={(e) => setOrdenEstadoId(e.target.value)}
-            className="border rounded px-3 py-2 w-full"
-            required
-          >
-            <option value="">Seleccioná un estado</option>
-            {ESTADOS_ORDEN.map((estado) => (
-              <option key={estado.codEstadoOrden} value={estado.codEstadoOrden}>
-                {estado.nombreEstadoOrden}
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* Estado solo en edición */}
+        {orden && (
+          <div>
+            <label className="block text-sm font-medium mb-1">Estado</label>
+            <select
+              value={ordenEstadoId}
+              onChange={(e) => setOrdenEstadoId(e.target.value)}
+              className="border rounded px-3 py-2 w-full"
+              required
+              disabled
+            >
+              <option value="">Seleccioná un estado</option>
+              {ESTADOS_ORDEN.map((estado) => (
+                <option key={estado.codEstadoOrden} value={estado.codEstadoOrden}>
+                  {estado.nombreEstadoOrden}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <div className="col-span-2 flex justify-end gap-2 mt-4">
           <button type="button" onClick={() => onClose(false)} className="bg-gray-400 text-white px-4 py-2 rounded">Cancelar</button>
           <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Guardar</button>
