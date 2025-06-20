@@ -95,14 +95,44 @@ export default function DetalleProveedor({
   if (!proveedor) return <div className="p-4">Cargando...</div>;
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-2xl">
-      <h2 className="text-2xl font-bold mb-4">Detalle del Proveedor</h2>
-      <p>
-        <strong>ID:</strong> {proveedor.codProveedor}
-      </p>
-      <p>
-        <strong>Nombre:</strong> {proveedor.nombreProveedor}
-      </p>
+    <div className="bg-white rounded-xl p-6 max-w-2xl w-full shadow-lg">
+      {editando ? (
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          {[
+            { label: 'Nombre del proveedor', name: 'nombreProveedor' },
+            { label: 'Descripción', name: 'descripcionArticulo' },
+            { label: 'Stock actual', name: 'stockActual' },
+            { label: 'Costo de almacenamiento', name: 'costoAlmacenamiento' },
+            { label: 'Costo de compra', name: 'costoCompra' },
+            { label: 'Costo de pedido', name: 'costoPedido' },
+            { label: 'Costo de mantenimiento', name: 'costoMantenimiento' },
+            { label: 'Demanda anual', name: 'demandaAnual' },
+            { label: 'Desviación Demanda L', name: 'desviacionDemandaL' },
+            { label: 'Desviación Demanda T', name: 'desviacionDemandaT' },
+            { label: 'Nivel de servicio deseado', name: 'nivelServicioDeseado' },
+          ].map((field) => (
+            <div key={field.name}>
+              <label className="block text-sm font-medium text-gray-700">{field.label}</label>
+              <input
+                name={field.name}
+                type={field.name.includes('stock') || field.name.includes('costo') || field.name.includes('demanda') || field.name.includes('desviacion') || field.name.includes('nivel')
+                  ? 'number'
+                  : 'text'}
+                value={(formData as any)[field.name] ?? ''}
+                onChange={handleInputChange}
+                className="border rounded px-3 py-1 w-full"
+              />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <>
+          <h2 className="text-2xl font-bold mb-4">{proveedor?.nombreProveedor}</h2>
+          <p className="mb-2"><strong>Cargo pedido:</strong> {proveedor.cargoPedido}</p>
+          <p className="mb-2"><strong>Demora entrega:</strong> {proveedor.demoraEntrega}</p>
+          <p className="mb-2"><strong>Precio unitario:</strong> {proveedor.precioUnitaria}</p>
+        </>
+      )}
 
       <h3 className="text-lg font-bold mt-4 mb-2">Articulos asociados</h3>
       <ul className="list-inside text-sm">

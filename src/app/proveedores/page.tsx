@@ -110,7 +110,6 @@ export default function ProveedoresPage() {
               <th className="py-3 px-4">Código</th>
               <th className="py-3 px-4">Nombre</th>
               <th className="py-3 px-4">Fecha Baja</th>
-              <th className="py-3 px-4">Predeterminado</th>
               <th className="py-3 px-4">Acciones</th>
             </tr>
           </thead>
@@ -132,15 +131,6 @@ export default function ProveedoresPage() {
                 <td className="py-2 px-4">{prov.codProveedor}</td>
                 <td className="py-2 px-4">{prov.nombreProv}</td>
                 <td className="py-2 px-4">{prov.fechaBaja || '—'}</td>
-                <td className="py-2 px-4">
-                  <input
-                    type="radio"
-                    name="predeterminado"
-                    checked={prov.predeterminado}
-                    onChange={() => handlePredeterminado(prov.codProveedor)}
-                    className="w-4 h-4 text-blue-600 focus:ring-blue-500"
-                  />
-                </td>
                 <td className="py-2 px-4 flex justify-center gap-2">
                   <button
                     className="text-green-600 hover:underline"
