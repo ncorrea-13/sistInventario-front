@@ -30,11 +30,9 @@ const VerDatosCalculados: React.FC<VerDatosCalculadosProps> = ({ codArticulo, on
                 let cgiData = null;
                 if (data.modeloInventario === 'loteFijo') {
                     const resCgi = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo/${codArticulo}/cgi`);
-                    if(!resCgi.ok) {
-                        const errorData = await resCgi.json();
-                        throw new Error(errorData.error || 'Error al obtener el CGI');
+                    if(resCgi.ok) {
+                        cgiData = await resCgi.json();
                     }
-                    cgiData = await resCgi.json();
                 }
 
                 setDatos({
@@ -42,7 +40,7 @@ const VerDatosCalculados: React.FC<VerDatosCalculadosProps> = ({ codArticulo, on
                     puntoPedido: data.modeloFijoLote?.puntoPedido,
                     stockSeguridadLot: data.modeloFijoLote?.stockSeguridadLot,
                     stockSeguridadInt: data.modeloFijoInventario?.stockSeguridadInt,
-                    cgi: cgiData?.cgi
+                    cgi: cgiData?.CGI
                 });
             } catch (err: any) {
                 setError(err.message);
@@ -65,7 +63,7 @@ const VerDatosCalculados: React.FC<VerDatosCalculadosProps> = ({ codArticulo, on
                     {datos.puntoPedido !== undefined && <p><strong>Punto de Pedido:</strong> {datos.puntoPedido.toFixed(2)}</p>}
                     {datos.stockSeguridadLot !== undefined && <p><strong>Stock de Seguridad (Lote Fijo):</strong> {datos.stockSeguridadLot.toFixed(2)}</p>}
                     {datos.stockSeguridadInt !== undefined && <p><strong>Stock de Seguridad (Intervalo Fijo):</strong> {datos.stockSeguridadInt.toFixed(2)}</p>}
-                    {datos.cgi !== undefined && <p><strong>Costo de Gestión de Inventario (CGI):</strong> ${datos.cgi.toFixed(2)}</p>}
+                    {datos.cgi !== undefined && <p><strong>CGI:</strong> ${datos.cgi.toFixed(2)}</p>}
                 </div>
             )}
             <button onClick={onClose} className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">

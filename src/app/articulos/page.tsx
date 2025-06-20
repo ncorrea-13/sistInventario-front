@@ -242,19 +242,19 @@ const ArticulosPage = () => {
                       setArticuloAEditar(articulo);
                       setMostrarModal(true);
                     }}
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded flex items-center"
+                    className="p-2 rounded-full flex items-center gap-1 bg-blue-500 hover:bg-blue-700 text-white"
                   >
                     <Pencil size={16} />
                   </button>
                   <button
                     onClick={() => setVerDatosId(articulo.codArticulo)}
-                    className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded flex items-center"
+                    className="p-2 rounded-full flex items-center gap-1 bg-green-500 hover:bg-green-700 text-white"
                   >
                     <Eye size={16} />
                   </button>
                   <button
                     onClick={() => setArticuloABorrar(articulo)}
-                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded flex items-center"
+                    className="p-2 rounded-full flex items-center gap-1 bg-red-500 hover:bg-red-700 text-white"
                   >
                     <Trash2 size={16} />
                   </button>
