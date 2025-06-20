@@ -97,7 +97,13 @@ export default function CrearEditarArticulo({
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Modelo de inventario</label>
-              <select name="modeloInventario" className="p-2 border rounded w-full" value={formData.modeloInventario} onChange={handleChange}>
+              <select 
+                name="modeloInventario" 
+                className="p-2 border rounded w-full" 
+                value={formData.modeloInventario} 
+                onChange={handleChange}
+                disabled={!!articuloInicial}
+              >
                 <option value="loteFijo">Lote Fijo</option>
                 <option value="intervaloFijo">Intervalo Fijo</option>
               </select>
