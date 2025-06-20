@@ -189,20 +189,20 @@ export default function AsignarProvArt({
               <table className="min-w-full bg-white border">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="py-2 px-4 border">Artículo</th>
-                    <th className="py-2 px-4 border">Precio Unitario</th>
-                    <th className="py-2 px-4 border">Demora Entrega</th>
-                    <th className="py-2 px-4 border">Cargo Pedido</th>
+                    <th className="py-2 px-3 text-left">Artículo</th>
+                    <th className="py-2 px-3 text-left">Precio Unitario</th>
+                    <th className="py-2 px-3 text-left">Demora de Entrega</th>
+                    <th className="py-2 px-3 text-left">Cargo por Pedido</th>
                     <th className="py-2 px-4 border">Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {articulosAsociados.map((art) => (
                     <tr key={art.articuloId} className="hover:bg-gray-50">
-                      <td className="py-2 px-4 border">{art.nombreArticulo}</td>
-                      <td className="py-2 px-4 border">${art.precioUnitaria.toFixed(2)}</td>
-                      <td className="py-2 px-4 border">{art.demoraEntrega} días</td>
-                      <td className="py-2 px-4 border">${art.cargoPedido.toFixed(2)}</td>
+                      <td className="py-2 px-3">{art.nombreArticulo}</td>
+                      <td className="py-2 px-3">${art.precioUnitaria.toFixed(2)}</td>
+                      <td className="py-2 px-3">{art.demoraEntrega} días</td>
+                      <td className="py-2 px-3">${art.cargoPedido.toFixed(2)}</td>
                       <td className="py-2 px-4 border">
                         <div className="flex gap-2 justify-center">
                           <button

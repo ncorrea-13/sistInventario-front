@@ -76,7 +76,9 @@ export default function CrearEditarArticulo({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
       <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-2xl">
-        <h2 className="text-2xl font-semibold text-center mb-6">Crear Nuevo Artículo</h2>
+        <h2 className="text-2xl font-semibold text-center mb-6">
+          {articuloInicial ? "Editar Artículo" : "Crear Nuevo Artículo"}
+        </h2>
         <form
           onSubmit={(e) => {
             e.preventDefault();
