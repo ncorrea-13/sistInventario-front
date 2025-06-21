@@ -28,11 +28,10 @@ const VerDatosCalculados: React.FC<VerDatosCalculadosProps> = ({ codArticulo, on
                 const data = await res.json();
                 
                 let cgiData = null;
-                if (data.modeloInventario === 'loteFijo') {
-                    const resCgi = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo/${codArticulo}/cgi`);
-                    if(resCgi.ok) {
-                        cgiData = await resCgi.json();
-                    }
+                // Obtener CGI para cualquier modelo de inventario
+                const resCgi = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo/${codArticulo}/cgi`);
+                if(resCgi.ok) {
+                    cgiData = await resCgi.json();
                 }
 
                 setDatos({

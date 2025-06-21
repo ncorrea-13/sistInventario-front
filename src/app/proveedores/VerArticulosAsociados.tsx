@@ -102,6 +102,7 @@ export default function VerArticulosAsociados({ proveedorId, onClose }: VerArtic
                 <th className="py-2 px-4 text-right">Demora (días)</th>
                 <th className="py-2 px-4 text-right">Cargo Pedido</th>
                 <th className="py-2 px-4 text-center">Predeterminado</th>
+                <th className="py-2 px-4 text-center">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -126,6 +127,14 @@ export default function VerArticulosAsociados({ proveedorId, onClose }: VerArtic
                     >
                       {asociacion.predeterminado ? 'Sí' : 'No'}
                     </span>
+                  </td>
+                  <td className="py-2 px-4 text-center">
+                    <button
+                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs"
+                      onClick={() => handleEliminar(asociacion.articulo.codArticulo)}
+                    >
+                      Eliminar
+                    </button>
                   </td>
                 </tr>
               ))}

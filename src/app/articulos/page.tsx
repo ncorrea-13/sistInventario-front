@@ -32,6 +32,8 @@ const ArticulosPage = () => {
   const [detalleId, setDetalleId] = useState<number | null>(null);
   const [articulos, setArticulos] = useState<ArticuloMapped[]>([]);
   const [filtro, setFiltro] = useState<Filtro>('todos');
+  const [editandoStockId, setEditandoStockId] = useState<number | null>(null);
+  const [nuevoStock, setNuevoStock] = useState<string>("");
 
   const fetchArticulos = useCallback(async (filtroActual: Filtro) => {
     let url = `${process.env.NEXT_PUBLIC_API_URL}/articulo`;
@@ -119,6 +121,33 @@ const ArticulosPage = () => {
     }
   };
 
+  const handleEditarStock = (articulo: ArticuloMapped) => {
+    setEditandoStockId(articulo.codArticulo);
+    setNuevoStock(articulo.stock.toString());
+  };
+
+  const handleGuardarStock = async (articulo: ArticuloMapped) => {
+    const valor = parseInt(nuevoStock, 10);
+    if (isNaN(valor) || valor < 0) {
+      alert("El stock debe ser un número válido y no negativo.");
+      return;
+    }
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo/${articulo.codArticulo}/inventario`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nuevoStock: valor }),
+      });
+      if (!res.ok) throw new Error("Error al actualizar el stock");
+      // Actualizar el stock localmente
+      setArticulos(prev => prev.map(a => a.codArticulo === articulo.codArticulo ? { ...a, stock: valor } : a));
+      setEditandoStockId(null);
+    } catch (err) {
+      alert("Error al actualizar el stock");
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchArticulos(filtro);
   }, [filtro, fetchArticulos]);
@@ -203,7 +232,32 @@ const ArticulosPage = () => {
               >
                 <td className="border p-2">{articulo.nombre}</td>
                 <td className="border p-2">{articulo.descripcion}</td>
-                <td className="border p-2">{articulo.stock}</td>
+                <td className="border p-2">
+                  {editandoStockId === articulo.codArticulo ? (
+                    <input
+                      type="number"
+                      value={nuevoStock}
+                      autoFocus
+                      min={0}
+                      onChange={e => setNuevoStock(e.target.value)}
+                      onBlur={() => handleGuardarStock(articulo)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') handleGuardarStock(articulo);
+                        if (e.key === 'Escape') setEditandoStockId(null);
+                      }}
+                      className="w-20 p-1 border rounded"
+                    />
+                  ) : (
+                    <button
+                      onClick={() => handleEditarStock(articulo)}
+                      className="flex items-center gap-1 px-2 py-1 border border-blue-400 rounded bg-blue-50 hover:bg-blue-100 text-blue-700 transition cursor-pointer shadow-sm"
+                      style={{ minWidth: '60px' }}
+                    >
+                      <span>{articulo.stock}</span>
+                      <Pencil size={14} className="ml-1" />
+                    </button>
+                  )}
+                </td>
                 <td className="border p-2 capitalize">{articulo.modeloInventario || '-'}</td>
                 <td className="border p-2">{articulo.costoAlmacenamiento}</td>
                 <td className="border p-2">{articulo.costoPedido}</td>
