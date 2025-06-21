@@ -22,6 +22,8 @@ export default function CrearEditarArticulo({
     desviacionDemandaT: articuloInicial?.desviacionDemandaT?.toString() || "0",
     nivelServicioDeseado: articuloInicial?.nivelServicioDeseado?.toString() || "0",
     modeloInventario: articuloInicial?.modeloInventario || "loteFijo",
+    precioUnitario: articuloInicial?.precioUnitario?.toString() || "0",
+    intervaloTiempo: articuloInicial?.intervaloTiempo?.toString() || "7",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -32,16 +34,22 @@ export default function CrearEditarArticulo({
   const handleGuardar = async () => {
     const articulo = {
       ...formData,
-      stockActual: Number(formData.stockActual),
-      costoAlmacenamiento: Number(formData.costoAlmacenamiento),
-      costoCompra: Number(formData.costoCompra),
-      costoPedido: Number(formData.costoPedido),
-      costoMantenimiento: Number(formData.costoMantenimiento),
-      demandaAnual: Number(formData.demandaAnual),
-      desviacionDemandaL: Number(formData.desviacionDemandaL),
-      desviacionDemandaT: Number(formData.desviacionDemandaT),
-      nivelServicioDeseado: Number(formData.nivelServicioDeseado),
+      stockActual: parseInt(formData.stockActual, 10),
+      costoAlmacenamiento: parseFloat(formData.costoAlmacenamiento),
+      costoCompra: parseFloat(formData.costoCompra),
+      costoPedido: parseFloat(formData.costoPedido),
+      costoMantenimiento: parseFloat(formData.costoMantenimiento),
+      demandaAnual: parseFloat(formData.demandaAnual),
+      desviacionDemandaL: parseFloat(formData.desviacionDemandaL),
+      desviacionDemandaT: parseFloat(formData.desviacionDemandaT),
+      nivelServicioDeseado: parseFloat(formData.nivelServicioDeseado),
+      precioUnitario: parseFloat(formData.precioUnitario),
+      ...(formData.modeloInventario === "intervaloFijo" ? { intervaloTiempo: parseInt(formData.intervaloTiempo, 10) } : {}),
     };
+
+    if (formData.modeloInventario !== "intervaloFijo") {
+      delete articulo.intervaloTiempo;
+    }
 
     console.log("📦 Enviando artículo al backend:", articulo);
 
@@ -112,6 +120,21 @@ export default function CrearEditarArticulo({
               <label className="block text-sm font-medium mb-1">Stock actual</label>
               <input name="stockActual" type="number" className="p-2 border rounded w-full" value={formData.stockActual} onChange={handleChange} />
             </div>
+            {/* Mostrar solo si es intervaloFijo */}
+            {formData.modeloInventario === "intervaloFijo" && (
+              <div className="col-span-2">
+                <label className="block text-sm font-medium mb-1">Intervalo de tiempo (días)</label>
+                <input
+                  name="intervaloTiempo"
+                  type="number"
+                  min="1"
+                  className="p-2 border rounded w-full"
+                  value={formData.intervaloTiempo}
+                  onChange={handleChange}
+                  required={formData.modeloInventario === "intervaloFijo"}
+                />
+              </div>
+            )}
           </div>
 
           <h3 className="text-lg font-medium">Costos</h3>

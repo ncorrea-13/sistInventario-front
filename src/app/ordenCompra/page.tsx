@@ -183,7 +183,7 @@ export default function OrdenesCompraPage() {
                                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ordenCompra/${orden.numOrdenCompra}/estado`, {
                                   method: 'PATCH',
                                   headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ nuevoEstado: 'CANCELADA' }),
+                                  body: JSON.stringify({ nuevoEstado: 'Cancelada' }),
                                 });
                                 if (!res.ok) throw new Error('No se pudo cancelar la orden');
                                 fetchOrdenesCompra();
@@ -219,7 +219,7 @@ export default function OrdenesCompraPage() {
                                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ordenCompra/${orden.numOrdenCompra}/estado`, {
                                   method: 'PATCH',
                                   headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ nuevoEstado: 'ENVIADA' }),
+                                  body: JSON.stringify({ nuevoEstado: 'Enviada' }),
                                 });
                                 if (!res.ok) throw new Error('No se pudo enviar la orden');
                                 fetchOrdenesCompra();
@@ -243,7 +243,7 @@ export default function OrdenesCompraPage() {
                                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ordenCompra/${orden.numOrdenCompra}/estado`, {
                                   method: 'PATCH',
                                   headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ nuevoEstado: 'FINALIZADA' }),
+                                  body: JSON.stringify({ nuevoEstado: 'Finalizada' }),
                                 });
                                 if (!res.ok) throw new Error('No se pudo finalizar la orden');
                                 // 2. Sumar el tamaño de lote al stock del artículo

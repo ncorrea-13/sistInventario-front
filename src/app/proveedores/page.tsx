@@ -34,22 +34,18 @@ export default function ProveedoresPage() {
 
   const handleEliminar = async (id: number) => {
     try {
-      // Verificamos si el proveedor tiene artículos asociados
-      const resArticulos = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/proveedor/${id}`);
-      const articulos = await resArticulos.json();
-      
-      if (articulos.length > 0) {
-        alert('No se puede dar de baja el proveedor: posee artículos asociados');
-        return;
-      }
-      
+      // Eliminada la validación de artículos asociados. El backend maneja las restricciones.
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/proveedor/${id}`, {
         method: 'PATCH',
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const errorData = await res.json();
+        alert(errorData.error || 'Error al dar de baja el proveedor');
+        throw new Error(errorData.error);
+      }
       fetchProveedores();
     } catch (err) {
-      alert('Error al dar de baja el proveedor');
+      // El mensaje de error ya fue mostrado arriba
       console.error(err);
     }
   };
@@ -126,7 +122,6 @@ export default function ProveedoresPage() {
               <tr 
                 key={prov.codProveedor} 
                 className="text-center border-b hover:bg-gray-100"
-                onDoubleClick={() => setDetalleId(prov.codProveedor)}
                 >
                 <td className="py-2 px-4">{prov.codProveedor}</td>
                 <td className="py-2 px-4">{prov.nombreProv}</td>
