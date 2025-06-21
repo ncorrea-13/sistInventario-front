@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 
 interface Articulo {
@@ -72,17 +71,33 @@ export default function CrearVenta({
       return;
     }
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/venta`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(venta),
-    });
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/venta`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(venta),
+      });
 
-    const data = await response.json();
-    console.log('🟢 Respuesta del backend:', data);
+      const data = await response.json();
+      console.log('🟢 Respuesta del backend:', data);
 
-    onVentaGuardada();
-    onCerrar();
+      if (!response.ok) {
+        // Verificar si el error es específicamente de stock insuficiente
+        const errorMessage = data.error || '';
+        if (errorMessage.includes('No hay suficiente stock')) {
+          alert("La venta no puede completarse: stock insuficiente");
+        } else {
+          alert(`Error al registrar la venta: ${errorMessage}`);
+        }
+        return;
+      }
+
+      onVentaGuardada();
+      onCerrar();
+    } catch (error) {
+      console.error('Error al registrar la venta:', error);
+      alert("Error al registrar la venta");
+    }
   };
 
   return (
