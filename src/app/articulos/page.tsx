@@ -11,6 +11,7 @@ interface ArticuloMapped {
   nombre: string;
   descripcion: string;
   stock: number;
+  stockSeguridad: number;
   costoAlmacenamiento: number;
   costoPedido: number;
   demanda: number;
@@ -52,6 +53,10 @@ const ArticulosPage = () => {
         nombre: articulo.nombreArticulo,
         descripcion: articulo.descripcionArticulo,
         stock: articulo.stockActual,
+        stockSeguridad:
+          articulo.modeloFijoLote?.stockSeguridadLot ||
+          articulo.modeloFijoInventario?.stockSeguridadInt ||
+          0,
         costoAlmacenamiento: articulo.costoAlmacenamiento,
         costoPedido: articulo.costoPedido,
         demanda: articulo.demandaAnual,
@@ -60,10 +65,6 @@ const ArticulosPage = () => {
         desviacionDemandaT: articulo.desviacionDemandaT,
         modeloInventario: articulo.modeloInventario,
         puntoPedido: articulo.modeloFijoLote?.puntoPedido || 0,
-        stockSeguridad:
-          articulo.modeloFijoLote?.stockSeguridadLot ||
-          articulo.modeloFijoInventario?.stockSeguridadInt ||
-          0,
         ordenesPendientes: articulo.ordenDetalle?.some(
           (od: any) =>
             od.ordenCompra?.ordenEstado?.nombreEstadoOrden === 'Pendiente' ||
@@ -139,8 +140,9 @@ const ArticulosPage = () => {
         body: JSON.stringify({ nuevoStock: valor }),
       });
       if (!res.ok) throw new Error("Error al actualizar el stock");
-      // Actualizar el stock localmente
-      setArticulos(prev => prev.map(a => a.codArticulo === articulo.codArticulo ? { ...a, stock: valor } : a));
+      
+      // Refrescar la lista completa para asegurar que los filtros se actualicen correctamente
+      fetchArticulos(filtro);
       setEditandoStockId(null);
     } catch (err) {
       alert("Error al actualizar el stock");
