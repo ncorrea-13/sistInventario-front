@@ -5,6 +5,7 @@ interface DatosCalculados {
     puntoPedido?: number;
     stockSeguridadLot?: number;
     stockSeguridadInt?: number;
+    inventarioMaximo?: number;
     cgi?: number;
 }
 
@@ -39,6 +40,7 @@ const VerDatosCalculados: React.FC<VerDatosCalculadosProps> = ({ codArticulo, on
                     puntoPedido: data.modeloFijoLote?.puntoPedido,
                     stockSeguridadLot: data.modeloFijoLote?.stockSeguridadLot,
                     stockSeguridadInt: data.modeloFijoInventario?.stockSeguridadInt,
+                    inventarioMaximo: data.inventarioMaximo,
                     cgi: cgiData?.CGI
                 });
             } catch (err: any) {
@@ -62,6 +64,7 @@ const VerDatosCalculados: React.FC<VerDatosCalculadosProps> = ({ codArticulo, on
                     {datos.puntoPedido !== undefined && <p><strong>Punto de Pedido:</strong> {datos.puntoPedido.toFixed(2)}</p>}
                     {datos.stockSeguridadLot !== undefined && <p><strong>Stock de Seguridad (Lote Fijo):</strong> {datos.stockSeguridadLot.toFixed(2)}</p>}
                     {datos.stockSeguridadInt !== undefined && <p><strong>Stock de Seguridad (Intervalo Fijo):</strong> {datos.stockSeguridadInt.toFixed(2)}</p>}
+                    {datos.inventarioMaximo !== undefined && <p><strong>Lote Óptimo (Intervalo Fijo):</strong> {datos.inventarioMaximo.toFixed(2)}</p>}
                     {datos.cgi !== undefined && <p><strong>CGI:</strong> ${datos.cgi.toFixed(2)}</p>}
                 </div>
             )}

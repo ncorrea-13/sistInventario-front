@@ -3,17 +3,17 @@ import { useEffect, useState } from 'react';
 
 interface OrdenCompraFormProps {
   orden?: any;
+  articulos: any[];
   onClose: (refrescar: boolean) => void;
 }
 
-export default function CrearEditarOrdenCompra({ orden, onClose }: OrdenCompraFormProps) {
+export default function CrearEditarOrdenCompra({ orden, articulos, onClose }: OrdenCompraFormProps) {
   const [numOrdenCompra, setNumOrdenCompra] = useState('');
   const [tamanoLote, setTamanoLote] = useState('');
   //const [montoOrden, setMontoOrden] = useState('');
   const [proveedorId, setProveedorId] = useState('');
   const [articuloId, setArticuloId] = useState('');
   const [ordenEstadoId, setOrdenEstadoId] = useState('');
-  const [articulos, setArticulos] = useState<any[]>([]);
   const [proveedoresAsociados, setProveedoresAsociados] = useState<any[]>([]);
   const [proveedorPredeterminadoId, setProveedorPredeterminadoId] = useState<string>('');
   const [modeloInventario, setModeloInventario] = useState<string>('');
@@ -37,86 +37,74 @@ export default function CrearEditarOrdenCompra({ orden, onClose }: OrdenCompraFo
   }, [orden]);
 
   useEffect(() => {
-    // Solo cargar artículos si estamos creando
-    if (!orden) {
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo`)
-        .then(res => res.json())
-        .then(data => {
-          console.log('Artículos traídos:', data);
-          setArticulos(Array.isArray(data) ? data : data.articulos || []);
-        })
-        .catch(() => setArticulos([]));
-    }
-    // Si estamos editando, cargar proveedores asociados al artículo de la orden
+    // Si estamos en modo edición, encontrar el artículo completo en la lista pasada por props
     if (orden && orden.detalles && orden.detalles.length > 0) {
-      const articuloId = orden.detalles[0].articuloId;
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo/${articuloId}`)
-        .then(res => res.json())
-        .then(data => {
-          let proveedores = data.proveedorArticulos || data.proveedores || [];
-          proveedores = proveedores.map((p: any) => ({
-            codProveedor: p.proveedorId || p.codProveedor,
-            nombreProv: p.proveedor?.nombreProv || p.nombreProv,
-            predeterminado: p.predeterminado,
-          }));
-          setProveedoresAsociados(proveedores);
-        })
-        .catch(() => setProveedoresAsociados([]));
+      const articuloIdActual = orden.detalles[0].articuloId;
+      const articuloCompleto = articulos.find(a => a.codArticulo === articuloIdActual);
+      
+      if (articuloCompleto && articuloCompleto.proveedorArticulos) {
+        const proveedores = articuloCompleto.proveedorArticulos.map((pa: any) => ({
+          ...pa.proveedor,
+          predeterminado: pa.predeterminado,
+        }));
+        setProveedoresAsociados(proveedores);
+      }
     }
-  }, [orden]);
+  }, [orden, articulos]);
 
-  // Nuevo: cargar proveedores y sugerencias al seleccionar artículo
+  // Nuevo: Cargar proveedores y sugerencias al seleccionar artículo
   useEffect(() => {
+    // Si se selecciona un artículo y estamos en modo creación
     if (!orden && articuloId) {
-      // 1. Traer detalle del artículo
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo/${articuloId}`)
-        .then(res => res.json())
-        .then(data => {
-          setModeloInventario(data.modeloInventario || '');
-          // Si es lote fijo, sugerir tamaño de lote
-          if ((data.modeloInventario === 'Fijo' || data.modeloInventario === 'loteFijo') && data.modeloFijoLote) {
-            setTamanoLoteSugerido(String(data.modeloFijoLote.loteOptimo));
-            setTamanoLote(String(data.modeloFijoLote.loteOptimo));
-          } else {
-            setTamanoLoteSugerido('');
-          }
-          // Proveedores asociados (por compatibilidad con tu backend, revisa si es data.proveedores o data.proveedorArticulos)
-          let proveedores = data.proveedorArticulos || data.proveedores || [];
-          // Adaptar formato si es necesario
-          proveedores = proveedores.map((p: any) => ({
-            codProveedor: p.proveedorId || p.codProveedor,
-            nombreProv: p.proveedor?.nombreProv || p.nombreProv,
-            predeterminado: p.predeterminado,
-          }));
-          setProveedoresAsociados(proveedores);
-          // Buscar predeterminado
-          const pred = proveedores.find((p: any) => p.predeterminado);
-          if (pred) {
-            setProveedorPredeterminadoId(String(pred.codProveedor));
-            setProveedorId(String(pred.codProveedor));
-          } else if (proveedores.length > 0) {
-            setProveedorPredeterminadoId('');
-            setProveedorId(String(proveedores[0].codProveedor));
-          } else {
-            setProveedorPredeterminadoId('');
-            setProveedorId('');
-          }
-        })
-        .catch(() => {
-          setModeloInventario('');
+      const articuloSeleccionado = articulos.find(
+        (a) => a.codArticulo === Number(articuloId)
+      );
+
+      if (articuloSeleccionado) {
+        // Establecer modelo y lote sugerido
+        setModeloInventario(articuloSeleccionado.modeloInventario || '');
+        if (
+          articuloSeleccionado.modeloInventario === 'loteFijo' &&
+          articuloSeleccionado.modeloFijoLote
+        ) {
+          const loteSugerido = String(
+            articuloSeleccionado.modeloFijoLote.loteOptimo
+          );
+          setTamanoLoteSugerido(loteSugerido);
+          setTamanoLote(loteSugerido); // Autocompletar
+        } else {
           setTamanoLoteSugerido('');
-          setProveedoresAsociados([]);
-          setProveedorPredeterminadoId('');
+          setTamanoLote('');
+        }
+
+        // Filtrar y establecer proveedores asociados
+        const proveedores = (articuloSeleccionado.proveedorArticulos || []).map(
+          (pa: any) => ({
+            ...pa.proveedor,
+            predeterminado: pa.predeterminado,
+          })
+        );
+        setProveedoresAsociados(proveedores);
+
+        // Establecer proveedor predeterminado o el primero de la lista
+        const pred = proveedores.find((p: any) => p.predeterminado);
+        if (pred) {
+          setProveedorId(String(pred.codProveedor));
+        } else if (proveedores.length > 0) {
+          setProveedorId(String(proveedores[0].codProveedor));
+        } else {
           setProveedorId('');
-        });
+        }
+      }
     } else if (!orden) {
+      // Limpiar si no hay artículo seleccionado en modo creación
+      setProveedoresAsociados([]);
       setModeloInventario('');
       setTamanoLoteSugerido('');
-      setProveedoresAsociados([]);
-      setProveedorPredeterminadoId('');
       setProveedorId('');
+      setTamanoLote('');
     }
-  }, [articuloId, orden]);
+  }, [articuloId, articulos, orden]);
 
   const handleGuardar = async () => {
     try {

@@ -183,7 +183,7 @@ export default function OrdenesCompraPage() {
                                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ordenCompra/${orden.numOrdenCompra}/estado`, {
                                   method: 'PATCH',
                                   headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ nuevoEstado: 'Cancelada' }),
+                                  body: JSON.stringify({ nuevoEstado: 'CANCELADA' }),
                                 });
                                 if (!res.ok) throw new Error('No se pudo cancelar la orden');
                                 fetchOrdenesCompra();
@@ -219,7 +219,7 @@ export default function OrdenesCompraPage() {
                                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ordenCompra/${orden.numOrdenCompra}/estado`, {
                                   method: 'PATCH',
                                   headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ nuevoEstado: 'Enviada' }),
+                                  body: JSON.stringify({ nuevoEstado: 'ENVIADA' }),
                                 });
                                 if (!res.ok) throw new Error('No se pudo enviar la orden');
                                 fetchOrdenesCompra();
@@ -243,18 +243,17 @@ export default function OrdenesCompraPage() {
                                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ordenCompra/${orden.numOrdenCompra}/estado`, {
                                   method: 'PATCH',
                                   headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ nuevoEstado: 'Finalizada' }),
+                                  body: JSON.stringify({ nuevoEstado: 'FINALIZADA' }),
                                 });
                                 if (!res.ok) throw new Error('No se pudo finalizar la orden');
                                 // 2. Sumar el tamaño de lote al stock del artículo
                                 const articuloId = orden.detalles && orden.detalles.length > 0 ? orden.detalles[0].articuloId : null;
-                                let nuevoStock = null;
                                 if (articuloId) {
                                   // Obtener el stock actual del artículo
                                   const resArticulo = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo/${articuloId}`);
                                   const dataArticulo = await resArticulo.json();
                                   const stockActual = dataArticulo.stockActual || 0;
-                                  nuevoStock = stockActual + orden.tamanoLote;
+                                  const nuevoStock = stockActual + orden.tamanoLote;
                                   await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo/${articuloId}/inventario`, {
                                     method: 'PUT',
                                     headers: { 'Content-Type': 'application/json' },
@@ -288,7 +287,8 @@ export default function OrdenesCompraPage() {
           <Modal onClose={() => handleCerrarModal(false)}>
             <CrearEditarOrdenCompra
               orden={ordenSeleccionada}
-              onClose={(refrescar) => handleCerrarModal(refrescar)}
+              articulos={articulos}
+              onClose={handleCerrarModal}
             />
           </Modal>
         )}
