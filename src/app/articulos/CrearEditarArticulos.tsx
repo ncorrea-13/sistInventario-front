@@ -110,7 +110,7 @@ export default function CrearEditarArticulo({
                 className="p-2 border rounded w-full" 
                 value={formData.modeloInventario} 
                 onChange={handleChange}
-                disabled={!!articuloInicial}
+                //disabled={!!articuloInicial}
               >
                 <option value="loteFijo">Lote Fijo</option>
                 <option value="intervaloFijo">Intervalo Fijo</option>

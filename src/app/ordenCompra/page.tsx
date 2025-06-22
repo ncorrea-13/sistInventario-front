@@ -22,10 +22,10 @@ interface OrdenCompra {
 }
 
 const ESTADOS_ORDEN = [
-  { codEstadoOrden: 1, nombreEstadoOrden: 'PENDIENTE' },
-  { codEstadoOrden: 2, nombreEstadoOrden: 'ENVIADA' },
-  { codEstadoOrden: 3, nombreEstadoOrden: 'FINALIZADA' },
-  { codEstadoOrden: 4, nombreEstadoOrden: 'CANCELADA' },
+  { codEstadoOrden: 1, nombreEstadoOrden: 'Pendiente' },
+  { codEstadoOrden: 2, nombreEstadoOrden: 'Enviada' },
+  { codEstadoOrden: 3, nombreEstadoOrden: 'Finalizada' },
+  { codEstadoOrden: 4, nombreEstadoOrden: 'Cancelada' },
 ];
 
 export default function OrdenesCompraPage() {
@@ -52,6 +52,7 @@ export default function OrdenesCompraPage() {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articulo`);
       const data = await res.json();
       setArticulos(Array.isArray(data) ? data : data.articulos || []);
+      console.log('Artículos cargados:', data);
     } catch (error) {
       console.error('Error al cargar artículos:', error);
     }
@@ -140,11 +141,11 @@ export default function OrdenesCompraPage() {
               .filter(orden => {
                 const estado = ESTADOS_ORDEN.find(e => e.codEstadoOrden === orden.ordenEstadoId);
                 if (filtroCanceladas) {
-                  return estado && estado.nombreEstadoOrden === 'CANCELADA';
+                  return estado && estado.nombreEstadoOrden === 'Cancelada';
                 } else if (filtroFinalizadas) {
-                  return estado && estado.nombreEstadoOrden === 'FINALIZADA';
+                  return estado && estado.nombreEstadoOrden === 'Finalizada';
                 } else {
-                  return estado && estado.nombreEstadoOrden !== 'CANCELADA' && estado.nombreEstadoOrden !== 'FINALIZADA';
+                  return estado && estado.nombreEstadoOrden !== 'Finalizada' && estado.nombreEstadoOrden !== 'Cancelada';
                 }
               })
               .map((orden) => {
@@ -172,18 +173,18 @@ export default function OrdenesCompraPage() {
                       <td className="py-2 px-4">
                         <div className="flex gap-2 justify-center">
                           <button
-                            className={`p-2 rounded-full ${estado && estado.nombreEstadoOrden === 'PENDIENTE' ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-gray-300 text-gray-400 cursor-not-allowed'}`}
-                            disabled={!estado || estado.nombreEstadoOrden !== 'PENDIENTE'}
+                            className={`p-2 rounded-full ${estado && estado.nombreEstadoOrden === 'Pendiente' ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-gray-300 text-gray-400 cursor-not-allowed'}`}
+                            disabled={!estado || estado.nombreEstadoOrden !== 'Pendiente'}
                             title="Eliminar"
                             onClick={async (e) => {
                               e.stopPropagation();
-                              if (!estado || estado.nombreEstadoOrden !== 'PENDIENTE') return;
+                              if (!estado || estado.nombreEstadoOrden !== 'Pendiente') return;
                               if (!window.confirm('¿Seguro que deseas cancelar esta orden de compra?')) return;
                               try {
                                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ordenCompra/${orden.numOrdenCompra}/estado`, {
                                   method: 'PATCH',
                                   headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ nuevoEstado: 'CANCELADA' }),
+                                  body: JSON.stringify({ nuevoEstado: 'Cancelada' }),
                                 });
                                 if (!res.ok) throw new Error('No se pudo cancelar la orden');
                                 fetchOrdenesCompra();
@@ -195,31 +196,31 @@ export default function OrdenesCompraPage() {
                             <Trash2 size={18} />
                           </button>
                           <button
-                            className={`p-2 rounded-full ${(filtroCanceladas || (estado && (estado.nombreEstadoOrden === 'CANCELADA' || estado.nombreEstadoOrden === 'ENVIADA'))) ? 'bg-gray-300 text-gray-400 cursor-not-allowed' : 'bg-black hover:bg-gray-800 text-white'}`}
+                            className={`p-2 rounded-full ${(filtroCanceladas || (estado && (estado.nombreEstadoOrden === 'Cancelada' || estado.nombreEstadoOrden === 'Enviada'))) ? 'bg-gray-300 text-gray-400 cursor-not-allowed' : 'bg-black hover:bg-gray-800 text-white'}`}
                             title="Editar"
                             onClick={(e) => {
-                              if (filtroCanceladas || (estado && (estado.nombreEstadoOrden === 'CANCELADA' || estado.nombreEstadoOrden === 'ENVIADA'))) return;
+                              if (filtroCanceladas || (estado && (estado.nombreEstadoOrden === 'Cancelada' || estado.nombreEstadoOrden === 'Enviada'))) return;
                               e.stopPropagation();
                               setOrdenSeleccionada(orden);
                               setMostrarModal(true);
                             }}
-                            disabled={filtroCanceladas || (estado && (estado.nombreEstadoOrden === 'CANCELADA' || estado.nombreEstadoOrden === 'ENVIADA'))}
+                            disabled={filtroCanceladas || (estado && (estado.nombreEstadoOrden === 'Cancelada' || estado.nombreEstadoOrden === 'Enviada'))}
                           >
                             <Pencil size={18} />
                           </button>
                           <button
-                            className={`p-2 rounded-full ${estado && estado.nombreEstadoOrden !== 'CANCELADA' ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-300 text-gray-400 cursor-not-allowed'}`}
+                            className={`p-2 rounded-full ${estado && (estado.nombreEstadoOrden !== 'Cancelada' && estado.nombreEstadoOrden !== 'Enviada') ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-300 text-gray-400 cursor-not-allowed'}`}
                             title="Enviar"
-                            disabled={estado && estado.nombreEstadoOrden === 'CANCELADA'}
+                            disabled={estado && (estado.nombreEstadoOrden === 'Cancelada' || estado.nombreEstadoOrden === 'Enviada')}
                             onClick={async (e) => {
                               e.stopPropagation();
-                              if (estado && estado.nombreEstadoOrden === 'CANCELADA') return;
+                              if (estado && estado.nombreEstadoOrden === 'Cancelada') return;
                               if (!window.confirm('¿Seguro que deseas enviar esta orden de compra?')) return;
                               try {
                                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ordenCompra/${orden.numOrdenCompra}/estado`, {
                                   method: 'PATCH',
                                   headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ nuevoEstado: 'ENVIADA' }),
+                                  body: JSON.stringify({ nuevoEstado: 'Enviada' }),
                                 });
                                 if (!res.ok) throw new Error('No se pudo enviar la orden');
                                 fetchOrdenesCompra();
@@ -231,19 +232,19 @@ export default function OrdenesCompraPage() {
                             <Send size={18} />
                           </button>
                           <button
-                            className={`p-2 rounded-full ${estado && estado.nombreEstadoOrden === 'ENVIADA' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-300 text-gray-400 cursor-not-allowed'}`}
+                            className={`p-2 rounded-full ${estado && estado.nombreEstadoOrden === 'Enviada' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-300 text-gray-400 cursor-not-allowed'}`}
                             title="Finalizar"
-                            disabled={!estado || estado.nombreEstadoOrden !== 'ENVIADA'}
+                            disabled={!estado || estado.nombreEstadoOrden !== 'Enviada'}
                             onClick={async (e) => {
                               e.stopPropagation();
-                              if (!estado || estado.nombreEstadoOrden !== 'ENVIADA') return;
+                              if (!estado || estado.nombreEstadoOrden !== 'Enviada') return;
                               if (!window.confirm('¿Seguro que deseas finalizar esta orden de compra?')) return;
                               try {
                                 // 1. Cambiar estado a FINALIZADA
                                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ordenCompra/${orden.numOrdenCompra}/estado`, {
                                   method: 'PATCH',
                                   headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ nuevoEstado: 'FINALIZADA' }),
+                                  body: JSON.stringify({ nuevoEstado: 'Finalizada' }),
                                 });
                                 if (!res.ok) throw new Error('No se pudo finalizar la orden');
                                 // 2. Sumar el tamaño de lote al stock del artículo

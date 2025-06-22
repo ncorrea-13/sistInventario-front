@@ -21,6 +21,9 @@ interface ArticuloMapped {
   modeloInventario: string;
   proveedores: any[];
   proveedorPredeterminado: number | null;
+  nivelServicioDeseado: number;
+  costoMantenimiento: number;
+  puntoPedido: number;
 }
 
 type Filtro = 'todos' | 'reponer' | 'faltantes';
@@ -63,8 +66,10 @@ const ArticulosPage = () => {
         costoCompra: articulo.costoCompra,
         desviacionDemandaL: articulo.desviacionDemandaL,
         desviacionDemandaT: articulo.desviacionDemandaT,
+        costoMantenimiento: articulo.costoMantenimiento,
+        nivelServicioDeseado: articulo.nivelServicioDeseado,
         modeloInventario: articulo.modeloInventario,
-        puntoPedido: articulo.modeloFijoLote?.puntoPedido || 0,
+        puntoPedido: articulo.modeloFijoLote?.puntoPedido || articulo.puntoPedido || 0,
         ordenesPendientes: articulo.ordenDetalle?.some(
           (od: any) =>
             od.ordenCompra?.ordenEstado?.nombreEstadoOrden === 'Pendiente' ||
@@ -332,6 +337,8 @@ const ArticulosPage = () => {
                 costoPedido: articuloAEditar.costoPedido,
                 demandaAnual: articuloAEditar.demanda,
                 costoCompra: articuloAEditar.costoCompra,
+                nivelServicioDeseado: articuloAEditar.nivelServicioDeseado,
+                costoMantenimiento: articuloAEditar.costoMantenimiento,
                 desviacionDemandaL: articuloAEditar.desviacionDemandaL,
                 desviacionDemandaT: articuloAEditar.desviacionDemandaT,
                 modeloInventario: articuloAEditar.modeloInventario,
