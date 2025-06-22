@@ -15,7 +15,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {!isHomePage && <Sidebar />}
           <main style={{ flex: 1 }}>{children}</main>
         </div>
-        <footer>Footer</footer>
       </body>
     </html>
   );

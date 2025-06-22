@@ -20,10 +20,10 @@ export default function CrearEditarOrdenCompra({ orden, articulos, onClose }: Or
   const [tamanoLoteSugerido, setTamanoLoteSugerido] = useState<string>('');
 
   const ESTADOS_ORDEN = [
-    { codEstadoOrden: 1, nombreEstadoOrden: 'PENDIENTE' },
-    { codEstadoOrden: 2, nombreEstadoOrden: 'ENVIADA' },
-    { codEstadoOrden: 3, nombreEstadoOrden: 'FINALIZADA' },
-    { codEstadoOrden: 4, nombreEstadoOrden: 'CANCELADA' },
+    { codEstadoOrden: 1, nombreEstadoOrden: 'Pendiente' },
+    { codEstadoOrden: 2, nombreEstadoOrden: 'Enviada' },
+    { codEstadoOrden: 3, nombreEstadoOrden: 'Finalizada' },
+    { codEstadoOrden: 4, nombreEstadoOrden: 'Cancelada' },
   ];
 
   useEffect(() => {
@@ -63,19 +63,13 @@ export default function CrearEditarOrdenCompra({ orden, articulos, onClose }: Or
       if (articuloSeleccionado) {
         // Establecer modelo y lote sugerido
         setModeloInventario(articuloSeleccionado.modeloInventario || '');
-        if (
-          articuloSeleccionado.modeloInventario === 'loteFijo' &&
-          articuloSeleccionado.modeloFijoLote
-        ) {
           const loteSugerido = String(
-            articuloSeleccionado.modeloFijoLote.loteOptimo
+            articuloSeleccionado.modeloFijoLote?.loteOptimo || articuloSeleccionado.loteOptimo || 1
           );
+          console.log(articuloSeleccionado);
           setTamanoLoteSugerido(loteSugerido);
           setTamanoLote(loteSugerido); // Autocompletar
-        } else {
-          setTamanoLoteSugerido('');
-          setTamanoLote('');
-        }
+
 
         // Filtrar y establecer proveedores asociados
         const proveedores = (articuloSeleccionado.proveedorArticulos || []).map(
@@ -119,8 +113,8 @@ export default function CrearEditarOrdenCompra({ orden, articulos, onClose }: Or
         const ordenes = await resCheck.json();
         const existeOC = Array.isArray(ordenes) && ordenes.some((oc: any) => {
           const tieneArticulo = oc.detalles && oc.detalles.some((d: any) => d.articuloId === Number(articuloId));
-          const estado = oc.ordenEstado?.nombreEstadoOrden || (oc.ordenEstadoId && (['PENDIENTE', 'ENVIADA'].includes(oc.ordenEstadoId)));
-          return tieneArticulo && (oc.ordenEstado?.nombreEstadoOrden === 'PENDIENTE' || oc.ordenEstado?.nombreEstadoOrden === 'ENVIADA');
+          const estado = oc.ordenEstado?.nombreEstadoOrden || (oc.ordenEstadoId && (['Pendiente', 'Enviada'].includes(oc.ordenEstadoId)));
+          return tieneArticulo && (oc.ordenEstado?.nombreEstadoOrden === 'Pendiente' || oc.ordenEstado?.nombreEstadoOrden === 'Enviada');
         });
         if (existeOC) {
           const continuar = window.confirm('Ya existe una orden de compra para este artículo ¿Desea continuar?');
@@ -300,3 +294,4 @@ export default function CrearEditarOrdenCompra({ orden, articulos, onClose }: Or
     </div>
   );
 }
+
